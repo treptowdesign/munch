@@ -1,0 +1,13 @@
+{
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon --watch index.js"
+  },
+  "dependencies": {
+    "raylib": "*"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  },
+  "type": "module"
+}
