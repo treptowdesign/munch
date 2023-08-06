@@ -52,10 +52,10 @@ export class Slime {
       }
 }
 
-export class SpecialSlime extends Slime {
+export class Hunter extends Slime {
     constructor(position, size, speed) {
         super(position, size, speed);
-        this.type = 'special';
+        this.type = 'hunter';
         // purple color
         this.startColor = hexToRGB("#D1B3E6");
         this.endColor = hexToRGB("#5D2555"); 
@@ -82,7 +82,7 @@ export class SpecialSlime extends Slime {
       }
       draw(){
         // aura
-        r.DrawCircleV(this.aura.position, this.aura.size, hexToRGB('#eeeeee', 200));
+        // r.DrawCircleV(this.aura.position, this.aura.size, hexToRGB('#eeeeee', 200));
         // matrix, translate, rotate & draw
         r.rlPushMatrix();
         r.rlTranslatef(this.position.x, this.position.y, 0);

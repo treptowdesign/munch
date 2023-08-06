@@ -60,9 +60,11 @@ while (!r.WindowShouldClose()) { // Detect window close button or ESC key
       }
     }
     // collision with Player 
-    checkCollision(bacteria, player, [eatBacteria]);
+    if(player){ checkCollision(bacteria, player, [eatBacteria]); }
     // collision with slimes
-    slimeArray.forEach((slime) => { checkCollision(bacteria, slime, [eatBacteria]) });
+    slimeArray.forEach((slime) => { 
+      checkCollision(bacteria, slime, [eatBacteria]) 
+    });
     // bacteria update/movement
     bacteria.update();
     // kill out of bounds (10px buffer)
@@ -72,23 +74,24 @@ while (!r.WindowShouldClose()) { // Detect window close button or ESC key
   });
 
   // GENERATE SLIMES
-  if(slimeArray.length < GLOBALS.game.slimeNum){
-    genSlime();
-  }
+  if(slimeArray.length < GLOBALS.game.slimeNum){ genSlime(); }
 
   // UPDATE SLIM ES
   slimeArray.forEach((slime, index) => {
-    // check collision with special slime aura
-    if(slime.type == 'special'){
+    // check collision with hunter slime aura
+    if(player && slime.type == 'hunter'){
       checkCollision(slime.aura, player, [hunterSeek], slime);
     }
     // check collision with player spike attack
-    checkCollision(slime, player.spike, [reflect, spikeAttack], player);
+    if(player){ checkCollision(slime, player.spike, [reflect, spikeAttack], player); }
     // collision with player
     checkCollision(slime, player, [reflect, shrinkPlayer]);
     // collision with other slimes
     slimeArray.forEach((slime2, index2) => { 
       if(index != index2){ // dont check against themselves
+        if(slime.type == 'hunter'){
+          checkCollision(slime.aura, slime2, [slimeAvoid]);
+        }
         checkCollision(slime, slime2, [reflect]);
       }; 
     });
@@ -120,6 +123,7 @@ while (!r.WindowShouldClose()) { // Detect window close button or ESC key
     r.DrawText(winText, (GLOBALS.screen.width/2) - (winTextWidth/2), (GLOBALS.screen.height/2), gameStateFontSize, r.DARKGRAY);
   } else if(gameState == 'lose'){
     // Lose Screen
+    player == null; 
     r.DrawText(loseText, (GLOBALS.screen.width/2) - (loseTextWidth/2), (GLOBALS.screen.height/2), gameStateFontSize, r.DARKGRAY);
   } else {
     // error 

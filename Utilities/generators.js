@@ -4,7 +4,7 @@ const r = pkg;
 import {GLOBALS} from '../globals.js';
 import {getOnscreenPoint, getOffscreenPoint, getVector} from '../Utilities/helpers.js';
 import {checkCollision} from '../Utilities/collision.js';
-import {Slime, SpecialSlime} from "../Entities/slime.js";
+import {Slime, Hunter} from "../Entities/slime.js";
 import {Bacteria} from "../Entities/bacteria.js";
 
 export let slimeArray = [] 
@@ -21,7 +21,7 @@ export function genSlime(){
   let pos = getOffscreenPoint();
   let randSize = r.GetRandomValue((GLOBALS.game.minSize * 100), ((GLOBALS.game.maxSize) * 100)) / 100;
   if(slimeType == 1){
-    newSlime = new SpecialSlime(pos, randSize, getVector(pos));
+    newSlime = new Hunter(pos, randSize, getVector(pos));
   } else {
     newSlime = new Slime(pos, randSize, getVector(pos));
   }

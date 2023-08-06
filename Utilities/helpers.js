@@ -2,6 +2,7 @@ import pkg from 'raylib';
 import { GLOBALS } from '../globals.js'
 const r = pkg;
 
+// convert a hev value to RGP w/optional alpha
 export function hexToRGB(hex, alpha) {
   let r = 0, g = 0, b = 0;
   // 3 digits
@@ -21,16 +22,16 @@ export function hexToRGB(hex, alpha) {
 
 // returns true if out of bounds, includes an optional offscreen buffer
 export function oob(pos, buffer){
-    if(
-        pos.x > GLOBALS.screen.width + buffer || 
-        pos.x < -buffer ||
-        pos.y > GLOBALS.screen.height + buffer ||
-        pos.y < -buffer
-    ){
-      return true;
-    } else {
-      return false;
-    }
+  if(
+    pos.x > GLOBALS.screen.width + buffer || 
+    pos.x < -buffer ||
+    pos.y > GLOBALS.screen.height + buffer ||
+    pos.y < -buffer
+  ){
+    return true;
+  } else {
+    return false;
+  }
 }
 
 // start off screen (60px buffer)
@@ -65,11 +66,6 @@ export function getOffscreenPoint(){
     return vector
   }
 
-// constrain size to min/max values
-// export function minMax(value){
-//     return Math.min(Math.max(value, GLOBALS.game.minSize), GLOBALS.game.maxSize);
-// }
-
 // returns a random 1 or 0
 export function randBool(){
   return r.GetRandomValue(0, 1) == 0 ? false : true;
@@ -85,6 +81,7 @@ export function colorGradient(start, end, ratio){
   };
 }
 
+// rotate a point by an angle
 export function rotatePoint(point, angleDeg) {
   const angleRad = angleDeg * Math.PI / 180;
   const cos = Math.cos(angleRad);
