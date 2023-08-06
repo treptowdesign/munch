@@ -6,8 +6,8 @@ import pkg from 'raylib';
 const r = pkg;
 
 import {GLOBALS} from './globals.js';
-import {oob} from './Utilities/helpers.js';
-import {checkCollision, reflect, eatBacteria, shrinkPlayer} from './Utilities/collision.js';
+import  {oob} from './Utilities/helpers.js';
+import {checkCollision, reflect, eatBacteria, logCollision, shrinkPlayer, spikeAttack, hunterSeek, slimeAvoid} from './Utilities/collision.js';
 import {slimeArray, bacteriaArray, genBacteria, genSlime} from './Utilities/generators.js';
 import {Player} from "./Entities/player.js";
 
@@ -60,15 +60,15 @@ while (!r.WindowShouldClose()) { // Detect window close button or ESC key
       }
     }
     // collision with Player 
-    checkCollision(bacteria, player, eatBacteria);
+    checkCollision(bacteria, player, [eatBacteria]);
     // collision with slimes
-    slimeArray.forEach((slime) => { checkCollision(bacteria, slime, eatBacteria) });
-    // handle movement
-    bacteria.move();
+    slimeArray.forEach((slime) => { checkCollision(bacteria, slime, [eatBacteria]) });
+    // bacteria update/movement
+    bacteria.update();
     // kill out of bounds (10px buffer)
     if(bacteria.active && oob(bacteria.position, 10)) { bacteriaArray.splice(index, 1) } 
     // draw
-    bacteria.draw();
+    bacteria.draw(); 
   });
 
   // GENERATE SLIMES
@@ -76,17 +76,25 @@ while (!r.WindowShouldClose()) { // Detect window close button or ESC key
     genSlime();
   }
 
-  // UPDATE SLIMES
+  // UPDATE SLIM ES
   slimeArray.forEach((slime, index) => {
+    // check collision with special slime aura
+    if(slime.type == 'special'){
+      checkCollision(slime.aura, player, [hunterSeek], slime);
+    }
+    // check collision with player spike attack
+    checkCollision(slime, player.spike, [reflect, spikeAttack], player);
     // collision with player
     checkCollision(slime, player, [reflect, shrinkPlayer]);
     // collision with other slimes
     slimeArray.forEach((slime2, index2) => { 
-      if(index != index2){ checkCollision(slime, slime2, reflect)}
+      if(index != index2){ // dont check against themselves
+        checkCollision(slime, slime2, [reflect]);
+      }; 
     });
-    // handle movement 
-    slime.move();
-    // kill out of bounds (120px buffer)
+    // slime update/movement 
+    slime.update();
+    // kill out of bounds (120px buffer) 
     if(oob(slime.position, 120)) { slimeArray.splice(index, 1) }
     // draw
     slime.draw();
@@ -100,8 +108,8 @@ while (!r.WindowShouldClose()) { // Detect window close button or ESC key
   }
 
   if(gameState == 'play'){
-    // player movement
-    player.move();
+    // player update/movement
+    player.update();
     // draw player 
     player.draw();
   } else if(gameState == 'win'){ 

@@ -3,21 +3,21 @@ import { GLOBALS } from '../globals.js'
 const r = pkg;
 
 export function hexToRGB(hex, alpha) {
-    let r = 0, g = 0, b = 0;
-    // 3 digits
-    if (hex.length == 4) {
-      r = "0x" + hex[1] + hex[1];
-      g = "0x" + hex[2] + hex[2];
-      b = "0x" + hex[3] + hex[3];
-    }
-    // 6 digits
-    else if (hex.length == 7) {
-      r = "0x" + hex[1] + hex[2];
-      g = "0x" + hex[3] + hex[4];
-      b = "0x" + hex[5] + hex[6];
-    }
-    return {r: +r, g: +g, b: +b, a: 255};
+  let r = 0, g = 0, b = 0;
+  // 3 digits
+  if (hex.length == 4) {
+    r = "0x" + hex[1] + hex[1];
+    g = "0x" + hex[2] + hex[2];
+    b = "0x" + hex[3] + hex[3];
   }
+  // 6 digits
+  else if (hex.length == 7) {
+    r = "0x" + hex[1] + hex[2];
+    g = "0x" + hex[3] + hex[4];
+    b = "0x" + hex[5] + hex[6];
+  }
+  return {r: +r, g: +g, b: +b, a: (alpha || 255)};
+}
 
 // returns true if out of bounds, includes an optional offscreen buffer
 export function oob(pos, buffer){
@@ -77,16 +77,23 @@ export function randBool(){
 
 // returns a blend between two colors at a certain %
 export function colorGradient(start, end, ratio){
-    return {
-      r: Math.round(start.r + ratio * (end.r - start.r)),
-      g: Math.round(start.g + ratio * (end.g - start.g)),
-      b: Math.round(start.b + ratio * (end.b - start.b)),
-      a: 255
-    };
-  }
+  return {
+    r: Math.round(start.r + ratio * (end.r - start.r)),
+    g: Math.round(start.g + ratio * (end.g - start.g)),
+    b: Math.round(start.b + ratio * (end.b - start.b)),
+    a: 255
+  };
+}
 
-
-
+export function rotatePoint(point, angleDeg) {
+  const angleRad = angleDeg * Math.PI / 180;
+  const cos = Math.cos(angleRad);
+  const sin = Math.sin(angleRad);
+  return {
+    x: point.x * cos - point.y * sin,
+    y: point.x * sin + point.y * cos
+  };
+}
 
 
 

@@ -23,7 +23,7 @@ export class Bacteria {
             return hexToRGB("#dddddd");
         }
     }
-    move(){
+    update(){
       if(this.active){
         // bacteria jitter
         this.speed.x = r.GetRandomValue(0, 100) / 100;
