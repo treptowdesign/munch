@@ -1,5 +1,6 @@
 import pkg from 'raylib';
-import {hexToRGB, randBool, colorGradient} from '../Utilities/helpers.js'
+import {hexToRGB, randBool, colorGradient} from '../Utilities/helpers.js';
+import {clr} from '../Utilities/color.js';
 import {GLOBALS} from '../globals.js'
 
 const r = pkg;
@@ -10,17 +11,15 @@ export class Bacteria {
       this.position = position || {x: 0, y: 0};
       this.speed = {x: 0, y: 0};
       this.size = 4;
-      this.color = hexToRGB("#a4d7f5"); 
       this.isColliding = 0;
       this.active = true;
       this.bonus = GLOBALS.game.bacteriaBonus;
     }
     getColor(){
         if(this.active){
-            return hexToRGB("#a4d7f5");
+            return clr('steel', 4);
         } else {
-            //return hexToRGB("#e8e79e");
-            return hexToRGB("#dddddd");
+            return clr('steel', 2);
         }
     }
     update(){

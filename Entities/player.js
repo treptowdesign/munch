@@ -1,6 +1,7 @@
 import pkg from 'raylib';
-import {hexToRGB, colorGradient, rotatePoint} from '../Utilities/helpers.js'
-import {GLOBALS} from '../globals.js'
+import {colorGradient, rotatePoint} from '../Utilities/helpers.js';
+import {clr} from '../Utilities/color.js';
+import {GLOBALS} from '../globals.js';
 const r = pkg;
 
 const screenWidth = GLOBALS.screen.width; //1400
@@ -17,8 +18,7 @@ export class Player {
       this.radiusH = 0;
       this.radiusV = 0;
       this.angle = 0;
-      this.startColor = hexToRGB("#6dbfb0");
-      this.endColor = hexToRGB("#60a1a7");
+      this.color = clr('green', 5);
       this.isColliding = 0;
       this.spike = {
         active: false,
@@ -31,12 +31,9 @@ export class Player {
         position: {x: 0, y: 0}, // spike tip position for collisions
         speed: {x: 0, y: 0}, // speed same as players for collisions
         size: 2,
-        inertia: 0
+        inertia: 0,
+        color: clr('green', 5, 65)
       }
-    }
-    getColor() {
-      let ratio = (this.size - minSize) / (maxSize - minSize);
-      return colorGradient(this.startColor, this.endColor, ratio);
     }
     getAccceleration(){
       // return 0.5 * ((maxSize - this.size) / (maxSize - minSize)); 
@@ -163,11 +160,11 @@ export class Player {
       r.rlPushMatrix();
       r.rlTranslatef(this.position.x, this.position.y, 0);
       r.rlRotatef(this.angle, 0, 0, 1);
-      r.DrawTriangle(this.spike.v1, this.spike.v2, this.spike.v3, r.RED); // spike 
-      r.DrawEllipse(0, 0, this.radiusH, this.radiusV, this.getColor());  // drawing at (0, 0) because we've translated the canvas
+      r.DrawTriangle(this.spike.v1, this.spike.v2, this.spike.v3, clr('green', 7, 65)); // spike 
+      r.DrawEllipse(0, 0, this.radiusH, this.radiusV, this.color);  // drawing at (0, 0) because we've translated the canvas
       r.rlPopMatrix();
       // attack point
-      // r.DrawCircleV(this.spike.position, 2, r.GREEN);
+      r.DrawCircleV(this.spike.position, 2, r.WHITE);
       // r.DrawText('x: '+this.spike.timePassed, this.position.x, this.position.y, 12, r.DARKGRAY); 
     }
   }

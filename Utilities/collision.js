@@ -82,15 +82,15 @@ export function spikeAttack(entity, spike, player){
 }
 
 // Hunter Slime Homing 
-export function hunterSeek(aura, player, target){
+export function hunterSeek(aura, player){
   let dx = player.position.x - aura.position.x;
   let dy = player.position.y - aura.position.y;
   let distance = Math.sqrt(dx*dx + dy*dy);
   let direction = {x: dx/distance, y: dy/distance};
   // speed factor of direction
   let speedFactor = 0.05; 
-  target.speed.x += direction.x * speedFactor;
-  target.speed.y += direction.y * speedFactor;
+  aura.parent.speed.x += direction.x * speedFactor;
+  aura.parent.speed.y += direction.y * speedFactor;
 }
 
 // slimeAvoid

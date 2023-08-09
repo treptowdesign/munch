@@ -82,6 +82,7 @@ export function colorGradient(start, end, ratio){
 }
 
 // rotate a point by an angle
+// this rotates a x,y point around (0, 0)
 export function rotatePoint(point, angleDeg) {
   const angleRad = angleDeg * Math.PI / 180;
   const cos = Math.cos(angleRad);

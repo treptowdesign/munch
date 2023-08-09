@@ -1,6 +1,8 @@
 import pkg from 'raylib';
-import {hexToRGB, colorGradient} from '../Utilities/helpers.js'
+import {colorGradient} from '../Utilities/helpers.js';
+import {clr} from '../Utilities/color.js';
 import {GLOBALS} from '../globals.js'
+import {genAura} from '../Utilities/generators.js';
 const r = pkg;
 
 const minSize = GLOBALS.game.minSize;
@@ -15,9 +17,13 @@ export class Slime {
         this.radiusH = 0;
         this.radiusV = 0;
         this.angle = r.GetRandomValue(0, 359);
-        this.startColor = hexToRGB("#e0cfbd"); // start color when size is minSize
-        this.endColor = hexToRGB("#d0413d"); // end color when size is maxSize
+        this.startColor = clr('red', 5); // start color when size is minSize
+        this.endColor = clr('red', 4); // end color when size is maxSize
         this.isColliding = 0;
+        this.alive = true;
+      }
+      initializeAura(){
+        // no aura on regular slime
       }
       getColor() {
         let ratio = (this.size - minSize) / (maxSize - minSize);
@@ -57,24 +63,16 @@ export class Hunter extends Slime {
         super(position, size, speed);
         this.type = 'hunter';
         // purple color
-        this.startColor = hexToRGB("#D1B3E6");
-        this.endColor = hexToRGB("#5D2555"); 
-        // aura
-        this.aura = {
-          position: {x: 0, y: 0},
-          size: 0
-        }
+        this.startColor = clr('pink', 5);
+        this.endColor = clr('pink', 4); 
       }
-      getAuraRange(){
-        this.aura.size = this.size * 5;
-        this.aura.position.x = this.position.x;
-        this.aura.position.y = this.position.y;
+      initializeAura(){
+        // generate aura, pass in parent & scale factor (5x bigger radius)
+        genAura(this, 5);
       }
       update(){
         // deform
         this.updateRadii();
-        // aura 
-        this.getAuraRange();
         // movement
         this.position.x += this.speed.x;
         this.position.y += this.speed.y;
@@ -82,7 +80,6 @@ export class Hunter extends Slime {
       }
       draw(){
         // aura
-        // r.DrawCircleV(this.aura.position, this.aura.size, hexToRGB('#eeeeee', 200));
         // matrix, translate, rotate & draw
         r.rlPushMatrix();
         r.rlTranslatef(this.position.x, this.position.y, 0);

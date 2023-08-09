@@ -6,13 +6,16 @@ import pkg from 'raylib';
 const r = pkg;
 
 import {GLOBALS} from './globals.js';
-import  {oob} from './Utilities/helpers.js';
+import {clr} from './Utilities/color.js';
+import {oob} from './Utilities/helpers.js';
 import {checkCollision, reflect, eatBacteria, logCollision, shrinkPlayer, spikeAttack, hunterSeek, slimeAvoid} from './Utilities/collision.js';
-import {slimeArray, bacteriaArray, genBacteria, genSlime} from './Utilities/generators.js';
+import {slimeArray, bacteriaArray, auraArray, genBacteria, genSlime} from './Utilities/generators.js';
 import {Player} from "./Entities/player.js";
 
+import {SquidArms} from "./Entities/squidarms.js";
+
 r.SetTargetFPS(60);
-r.InitWindow(GLOBALS.screen.width, GLOBALS.screen.height, 'Munch');
+r.InitWindow(GLOBALS.screen.width, GLOBALS.screen.height, 'Munch');  
 
 // game states: play, win, lose, etc.
 let gameState = 'play';
@@ -35,6 +38,8 @@ while(bacteriaArray.length < GLOBALS.game.bacteriaNum){
 //   genSlime();
 // }
 
+// Squid
+let squid = new SquidArms({x: 200 , y: 300}, 16, 100);
 
 /////////////////////////////////////////////////////////////////////////////
 // Game Loop
@@ -43,7 +48,7 @@ while(bacteriaArray.length < GLOBALS.game.bacteriaNum){
 while (!r.WindowShouldClose()) { // Detect window close button or ESC key
 
   r.BeginDrawing();
-  r.ClearBackground(r.RAYWHITE);
+  r.ClearBackground(clr('base'));
 
   // UPDATE BACTERIA
   bacteriaArray.forEach((bacteria, index) => {
@@ -73,35 +78,51 @@ while (!r.WindowShouldClose()) { // Detect window close button or ESC key
     bacteria.draw(); 
   });
 
+  // UPDATE AURAS
+  auraArray.forEach((aura, index) => {
+    // aura v player
+    if(player){ checkCollision(aura, player, [hunterSeek]); }
+    // aura v slimes
+    slimeArray.forEach((slime) => {
+      if(slime != aura.parent){ // dont check against self
+        checkCollision(aura, slime, [slimeAvoid]);
+      }
+    });
+    aura.update();
+    if(!aura.parent.alive){
+      auraArray.splice(index, 1);
+    }
+    aura.draw();
+  })
+
   // GENERATE SLIMES
   if(slimeArray.length < GLOBALS.game.slimeNum){ genSlime(); }
+  // let hunterArray = slimeArray.filter((slime) => slime.type == 'hunter');
 
-  // UPDATE SLIM ES
+  // UPDATE SLIMES
   slimeArray.forEach((slime, index) => {
-    // check collision with hunter slime aura
-    if(player && slime.type == 'hunter'){
-      checkCollision(slime.aura, player, [hunterSeek], slime);
-    }
     // check collision with player spike attack
     if(player){ checkCollision(slime, player.spike, [reflect, spikeAttack], player); }
     // collision with player
-    checkCollision(slime, player, [reflect, shrinkPlayer]);
+    if(player){ checkCollision(slime, player, [reflect, shrinkPlayer]); }
     // collision with other slimes
     slimeArray.forEach((slime2, index2) => { 
       if(index != index2){ // dont check against themselves
-        if(slime.type == 'hunter'){
-          checkCollision(slime.aura, slime2, [slimeAvoid]);
-        }
         checkCollision(slime, slime2, [reflect]);
       }; 
     });
-    // slime update/movement 
+    // slime update/movement
     slime.update();
     // kill out of bounds (120px buffer) 
-    if(oob(slime.position, 120)) { slimeArray.splice(index, 1) }
+    if(oob(slime.position, 120)) { 
+      // remove slime itself
+      slime.alive = false;
+      slimeArray.splice(index, 1) ;
+    }
     // draw
     slime.draw();
   });
+
 
   // Game State & Player 
   if(player.size <= 5){
@@ -115,27 +136,33 @@ while (!r.WindowShouldClose()) { // Detect window close button or ESC key
     player.update();
     // draw player 
     player.draw();
+    // debug
+    // r.DrawText('Player Size: ' + player.size + '/'+GLOBALS.game.maxSize, 20, 20, 30, clr('steel', 6));
+    r.DrawText('Angle: ' + player.angle, 20, 60, 30, clr('steel', 6));
+    r.DrawText('MaxSpeed: ' + player.getMaxSpeed(), 20, 100, 30, clr('steel', 6));
   } else if(gameState == 'win'){ 
     // Win Screen
     player.speed.x = 0;
     player.speed.y = 0;
-    r.DrawCircleV(player.position, player.size, player.getColor());
-    r.DrawText(winText, (GLOBALS.screen.width/2) - (winTextWidth/2), (GLOBALS.screen.height/2), gameStateFontSize, r.DARKGRAY);
+    r.DrawCircleV(player.position, player.size, player.color );
+    r.DrawText(winText, (GLOBALS.screen.width/2) - (winTextWidth/2), (GLOBALS.screen.height/2), gameStateFontSize, clr('steel', 6));
   } else if(gameState == 'lose'){
     // Lose Screen
-    player == null; 
-    r.DrawText(loseText, (GLOBALS.screen.width/2) - (loseTextWidth/2), (GLOBALS.screen.height/2), gameStateFontSize, r.DARKGRAY);
+    player = false; 
+    r.DrawText(loseText, (GLOBALS.screen.width/2) - (loseTextWidth/2), (GLOBALS.screen.height/2), gameStateFontSize, clr('steel', 6));
   } else {
     // error 
     console.log('NO GAME STATE');
   }
 
-  // Debug 
-  // r.DrawText('FPS: ' + r.GetFPS(), 20, 20, 30, r.DARKGRAY); 
-  r.DrawText('Player Size: ' + player.size + '/'+GLOBALS.game.maxSize, 20, 20, 30, r.DARKGRAY);
-  r.DrawText('Angle: ' + player.angle, 20, 60, 30, r.DARKGRAY);
-  r.DrawText('MaxSpeed: ' + player.getMaxSpeed(), 20, 100, 30, r.DARKGRAY);
-  // r.DrawText('Slime Num: ' + slimeArray.length, 20, 100, 30, r.DARKGRAY);
+  
+  // Squid 
+  squid.update();
+  squid.draw();
+
+
+  // debug 
+  r.DrawText('FPS: ' + r.GetFPS(), 20, 20, 30, clr('steel', 6)); 
 
   r.EndDrawing();
 
