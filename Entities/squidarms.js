@@ -18,10 +18,10 @@ export class SquidArms {
         for (let i = 0; i < this.number; i++) {
             // variable phase
             let phase = Math.random();
-            // let frequency = 1 + Math.random() * 2;
-            // create new LineWave for each arm: position, length, amplitude, frequency, speed, phase, x-offset
+            // create new LineWave for each arm
+            // position, length, amplitude, frequency, speed, phase, x-offset
             let arm = new LineWave({x: 0, y:0}, this.size, 5, 2, 0.5, phase, 40);
-            // save angle of this arm for drawing
+            // save angle of this arm for drawing - used only in this class so dont pass to constructor 
             arm.angle = angleStep * i;
             // add the new arm to the list
             this.arms.push(arm);
