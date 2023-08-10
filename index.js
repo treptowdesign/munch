@@ -114,8 +114,8 @@ while (!r.WindowShouldClose()) { // Detect window close button or ESC key
     aura.update();
     if(!aura.parent.alive){
       auraArray.splice(index, 1);
-      // console.log('Aura Num: '+auraArray.length);
-      // console.log('Hunter Num: '+hunterArray.length);
+      console.log('Aura Num: '+auraArray.length);
+      console.log('Hunter Num: '+hunterArray.length);
     }
     aura.draw();
   })
@@ -189,7 +189,7 @@ while (!r.WindowShouldClose()) { // Detect window close button or ESC key
 
 
   // debug 
-  // r.DrawText('FPS: ' + r.GetFPS(), 20, 20, 30, clr('steel', 6)); 
+  r.DrawText('FPS: ' + r.GetFPS(), 20, 20, 30, clr('steel', 6)); 
 
   r.EndDrawing();
 

@@ -175,23 +175,12 @@ export class Spike {
         this.vertices.v1 = r.Vector2((0 + this.height + this.bounce), 0);
         this.vertices.v2 = r.Vector2(0 + this.bounce, -(this.width/2) + 0);
         this.vertices.v3 = r.Vector2(0 + this.bounce, (this.width/2) + 0);
-        // store rotated points
-        let pOrigin = this.parent.position;
-        let pAngle = radiansToDegrees(this.parent.angle); // radiansToDegrees
-        // handle translate & rotation
-        this.rotVerts.v1 = rotatePoint(addVertices(this.position, this.vertices.v1), this.rotAngle + pAngle);
-        this.rotVerts.v1 = addVertices(this.rotVerts.v1, pOrigin);
       }
       draw(){
         let that = this; // preserve scope for callback
         matrixRotate(this.position, this.angle, function(){ // origin, angle, draw as callback
             r.DrawTriangle(that.vertices.v1, that.vertices.v2, that.vertices.v3, that.color); // spike 
-            // r.DrawCircleV({x: 0, y: 0}, 2, clr('green', 5)); // origin
-            // r.DrawCircleV(that.vertices.v1, 2, clr('red', 5)); // point
-            // r.DrawText('Phase: ' + that.phase, that.offset, 0, 12, clr('white', 7));
         });
-        // draw collision point
-        // r.DrawCircleV(rotatePoint(this.vertices.v1, this.angle), 2, clr('green', 5));
       }
 }
 
@@ -405,10 +394,11 @@ export class RadialSpikes {
         });
         // draw real world points (rotated twice)
         for (let arm of this.arms) {
-            r.DrawCircleV(arm.rotVerts.v1, 2, clr('green', 5)); // point
+            let pAngle = radiansToDegrees(this.angle); // radiansToDegrees
+            let point = rotatePoint(addVertices(arm.position, arm.vertices.v1), arm.rotAngle + pAngle);
+            point = addVertices(point, this.position);
+            r.DrawCircleV(point, 2, clr('green', 5)); // point
         }
-        let arm = this.arms[0];
-        r.DrawCircleV(arm.rotVerts.v1, 2, clr('green', 7)); // point
         // draw slime body
         this.body.draw();
     }
