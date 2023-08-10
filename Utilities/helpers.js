@@ -36,35 +36,35 @@ export function oob(pos, buffer){
 
 // start off screen (60px buffer)
 export function getOffscreenPoint(){
-    const randHW = randBool(); // choose height or width at random
-    const posNeg = randBool(); // choose positive or negative at random
-    let randX, randY;
-    if(randHW){ // use width
-      randX = r.GetRandomValue(-60, GLOBALS.screen.width + 60);
-      randY = (posNeg) ? -60 : GLOBALS.screen.height + 60; 
-    } else { // use height
-      randY = r.GetRandomValue(-60, GLOBALS.screen.height + 60);
-      randX = (posNeg) ? -60 : GLOBALS.screen.width + 60;
-    }
-    return {x: randX, y: randY}
+  const randHW = randBool(); // choose height or width at random
+  const posNeg = randBool(); // choose positive or negative at random
+  let randX, randY;
+  if(randHW){ // use width
+    randX = r.GetRandomValue(-60, GLOBALS.screen.width + 60);
+    randY = (posNeg) ? -60 : GLOBALS.screen.height + 60; 
+  } else { // use height
+    randY = r.GetRandomValue(-60, GLOBALS.screen.height + 60);
+    randX = (posNeg) ? -60 : GLOBALS.screen.width + 60;
+  }
+  return {x: randX, y: randY}
   }
   
-  // get random point on screen
-  export function getOnscreenPoint(){
-    const randX = r.GetRandomValue(0, GLOBALS.screen.width);
-    const randY = r.GetRandomValue(0, GLOBALS.screen.height);
-    return {x: randX, y: randY}
-  }
+// get random point on screen
+export function getOnscreenPoint(){
+  const randX = r.GetRandomValue(0, GLOBALS.screen.width);
+  const randY = r.GetRandomValue(0, GLOBALS.screen.height);
+  return {x: randX, y: randY}
+}
   
-  // Take starting position determine its direction & speed
-  export function getVector(pos){
-    let speedX = r.GetRandomValue(50, 200) / 100;
-    let speedY = r.GetRandomValue(50, 200) / 100;
-    let vX = (pos.x < (GLOBALS.screen.width/2)) ? 1 : -1;
-    let vY = (pos.y < (GLOBALS.screen.height/2)) ? 1 : -1;
-    let vector = {x: (speedX * vX), y: (speedY * vY)}
-    return vector
-  }
+// Take starting position determine its direction & speed
+export function getVector(pos){
+  let speedX = r.GetRandomValue(50, 200) / 100;
+  let speedY = r.GetRandomValue(50, 200) / 100;
+  let vX = (pos.x < (GLOBALS.screen.width/2)) ? 1 : -1;
+  let vY = (pos.y < (GLOBALS.screen.height/2)) ? 1 : -1;
+  let vector = {x: (speedX * vX), y: (speedY * vY)};
+  return vector;
+}
 
 // returns a random 1 or 0
 export function randBool(){
@@ -93,47 +93,68 @@ export function rotatePoint(point, angleDeg) {
   };
 }
 
+export function matrixRotate(origin, angle, drawCallback){
+  // push into matrix
+  r.rlPushMatrix();
+  // origin x/y to center at translate position
+  r.rlTranslatef(origin.x, origin.y, 0);
+  // rotation
+  r.rlRotatef(angle * (180 / Math.PI), 0, 0, 1);
+  // draw callback
+  drawCallback();
+  // pop out of matrix
+  r.rlPopMatrix();
+}
 
 
 
 
 
-  export function exchangeSize(entityA, entityB){
-    if(entityB.size < entityA.size){
-      let scaleFactor = (1 * (entityB.size / entityA.size));
-      entityA.size = Math.min(entityA.size + scaleFactor, maxSize);
-    } else if(entityB.size > entityA.size) {
-      let scaleFactor = (1 * (entityA.size / entityB.size));
-      entityA.size = Math.max(entityA.size - scaleFactor, minSize);
-    } else {
-      entityA.size = randBool ? minMax(entityA.size + 1) : minMax(entityA.size - 1); 
-    } 
-  }
+
+
+
+
+
+
+
+
+
+  // export function exchangeSize(entityA, entityB){
+  //   if(entityB.size < entityA.size){
+  //     let scaleFactor = (1 * (entityB.size / entityA.size));
+  //     entityA.size = Math.min(entityA.size + scaleFactor, maxSize);
+  //   } else if(entityB.size > entityA.size) {
+  //     let scaleFactor = (1 * (entityA.size / entityB.size));
+  //     entityA.size = Math.max(entityA.size - scaleFactor, minSize);
+  //   } else {
+  //     entityA.size = randBool ? minMax(entityA.size + 1) : minMax(entityA.size - 1); 
+  //   } 
+  // }
   
-  export function exchangeSize2(entityA, entityB){
-    // console.log('special collide!');
-    if(entityB.size < entityA.size){
-      let scaleFactor = (2 * (entityB.size / entityA.size));
-      entityA.size = Math.min(entityA.size + scaleFactor, maxSize);
-    } else if(entityB.size > entityA.size) {
-      let scaleFactor = (2 * (entityA.size / entityB.size));
-      entityA.size = Math.max(entityA.size - scaleFactor, minSize);
-    } else {
-      entityA.size = randBool ? minMax(entityA.size + 1) : minMax(entityA.size - 1); 
-    } 
-  }
+  // export function exchangeSize2(entityA, entityB){
+  //   // console.log('special collide!');
+  //   if(entityB.size < entityA.size){
+  //     let scaleFactor = (2 * (entityB.size / entityA.size));
+  //     entityA.size = Math.min(entityA.size + scaleFactor, maxSize);
+  //   } else if(entityB.size > entityA.size) {
+  //     let scaleFactor = (2 * (entityA.size / entityB.size));
+  //     entityA.size = Math.max(entityA.size - scaleFactor, minSize);
+  //   } else {
+  //     entityA.size = randBool ? minMax(entityA.size + 1) : minMax(entityA.size - 1); 
+  //   } 
+  // }
   
-  export function exchangeSizeB(entityA, entityB){
-    if(entityB.size < entityA.size){
-      let sizeDifference = entityA.size - entityB.size;
-      let scaleFactor = 1 - sizeDifference / (maxSize - minSize); // scaleFactor is closer to 1 when sizes are close
-      entityA.size = Math.min(entityA.size + scaleFactor, maxSize);
-    } else if(entityB.size > entityA.size) {
-      let sizeDifference = entityB.size - entityA.size;
-      let scaleFactor = 1 - sizeDifference / (maxSize - minSize); // scaleFactor is closer to 1 when sizes are close
-      entityA.size = Math.max(entityA.size - scaleFactor, minSize);
-    } else {
-      // same size - randomize size change +/-
-      entityA.size = randBool ? minMax(entityA.size + 1) : minMax(entityA.size - 1);
-    }
-  }
+  // export function exchangeSizeB(entityA, entityB){
+  //   if(entityB.size < entityA.size){
+  //     let sizeDifference = entityA.size - entityB.size;
+  //     let scaleFactor = 1 - sizeDifference / (maxSize - minSize); // scaleFactor is closer to 1 when sizes are close
+  //     entityA.size = Math.min(entityA.size + scaleFactor, maxSize);
+  //   } else if(entityB.size > entityA.size) {
+  //     let sizeDifference = entityB.size - entityA.size;
+  //     let scaleFactor = 1 - sizeDifference / (maxSize - minSize); // scaleFactor is closer to 1 when sizes are close
+  //     entityA.size = Math.max(entityA.size - scaleFactor, minSize);
+  //   } else {
+  //     // same size - randomize size change +/-
+  //     entityA.size = randBool ? minMax(entityA.size + 1) : minMax(entityA.size - 1);
+  //   }
+  // }

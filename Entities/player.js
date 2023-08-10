@@ -1,5 +1,5 @@
 import pkg from 'raylib';
-import {colorGradient, rotatePoint} from '../Utilities/helpers.js';
+import {rotatePoint, matrixRotate} from '../Utilities/helpers.js';
 import {clr} from '../Utilities/color.js';
 import {GLOBALS} from '../globals.js';
 const r = pkg;
@@ -156,12 +156,18 @@ export class Player {
       this.spike.intertia = this.size;
     }
     draw(){
-      // matrix, translate, rotate & draw
+      // let that = this; // preserve scope for callback
+      // matrixRotate(this.position, this.angle, function(){ // origin, angle, draw as callback
+      //   r.DrawTriangle(that.spike.v1, that.spike.v2, that.spike.v3, clr('green', 7, 65)); // spike 
+      //   r.DrawEllipse(0, 0, that.radiusH, that.radiusV, that.color);  // drawing at (0, 0) because we've translated the canvas
+      // });
+
+      // matrix rotate
       r.rlPushMatrix();
       r.rlTranslatef(this.position.x, this.position.y, 0);
       r.rlRotatef(this.angle, 0, 0, 1);
-      r.DrawTriangle(this.spike.v1, this.spike.v2, this.spike.v3, clr('green', 7, 65)); // spike 
-      r.DrawEllipse(0, 0, this.radiusH, this.radiusV, this.color);  // drawing at (0, 0) because we've translated the canvas
+        r.DrawTriangle(this.spike.v1, this.spike.v2, this.spike.v3, clr('green', 7, 65)); // spike 
+        r.DrawEllipse(0, 0, this.radiusH, this.radiusV, this.color);  // drawing at (0, 0) because we've translated the canvas
       r.rlPopMatrix();
       // attack point
       r.DrawCircleV(this.spike.position, 2, r.WHITE);

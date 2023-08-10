@@ -8,11 +8,18 @@ const r = pkg;
 import {GLOBALS} from './globals.js';
 import {clr} from './Utilities/color.js';
 import {oob} from './Utilities/helpers.js';
-import {checkCollision, reflect, eatBacteria, logCollision, shrinkPlayer, spikeAttack, hunterSeek, slimeAvoid} from './Utilities/collision.js';
+import {
+  checkCollision, 
+  reflect, 
+  eatBacteria, 
+  logCollision, 
+  shrinkPlayer, 
+  spikeAttack, 
+  hunterSeek, 
+  slimeAvoid} from './Utilities/collision.js';
 import {slimeArray, bacteriaArray, auraArray, genBacteria, genSlime} from './Utilities/generators.js';
 import {Player} from "./Entities/player.js";
-
-import {SquidArms} from "./Entities/squidarms.js";
+import {RadialFlagella, RadialGlobs, RadialSpikes, TripleTail, Glob, Spike} from "./Entities/graphics.js";
 
 r.SetTargetFPS(60);
 r.InitWindow(GLOBALS.screen.width, GLOBALS.screen.height, 'Munch');  
@@ -38,8 +45,18 @@ while(bacteriaArray.length < GLOBALS.game.bacteriaNum){
 //   genSlime();
 // }
 
-// Squid
-let squid = new SquidArms({x: 200 , y: 300}, 16, 100);
+// graphics tests
+let graphicArray = [];
+let squid = new RadialFlagella({x: 200 , y: 300}, 16, 100, 40); //position, number, length, size
+graphicArray.push(squid);
+let tails = new TripleTail({x: 450 , y: 300}, 120); //position, size
+graphicArray.push(tails);
+let glob = new RadialGlobs({x: 600 , y: 300}, 10, 40); //position, number, size
+graphicArray.push(glob);
+let spike = new RadialSpikes({x: 200 , y: 500}, 14, 40, clr('red', 5)); //position, number, size, color
+graphicArray.push(spike);
+
+
 
 /////////////////////////////////////////////////////////////////////////////
 // Game Loop
@@ -78,6 +95,8 @@ while (!r.WindowShouldClose()) { // Detect window close button or ESC key
     bacteria.draw(); 
   });
 
+  let hunterArray = slimeArray.filter((slime) => slime.type == 'hunter');
+
   // UPDATE AURAS
   auraArray.forEach((aura, index) => {
     // aura v player
@@ -91,13 +110,14 @@ while (!r.WindowShouldClose()) { // Detect window close button or ESC key
     aura.update();
     if(!aura.parent.alive){
       auraArray.splice(index, 1);
+      console.log('Aura Num: '+auraArray.length);
+      console.log('Hunter Num: '+hunterArray.length);
     }
     aura.draw();
   })
 
   // GENERATE SLIMES
   if(slimeArray.length < GLOBALS.game.slimeNum){ genSlime(); }
-  // let hunterArray = slimeArray.filter((slime) => slime.type == 'hunter');
 
   // UPDATE SLIMES
   slimeArray.forEach((slime, index) => {
@@ -117,7 +137,7 @@ while (!r.WindowShouldClose()) { // Detect window close button or ESC key
     if(oob(slime.position, 120)) { 
       // remove slime itself
       slime.alive = false;
-      slimeArray.splice(index, 1) ;
+      slimeArray.splice(index, 1);
     }
     // draw
     slime.draw();
@@ -156,9 +176,12 @@ while (!r.WindowShouldClose()) { // Detect window close button or ESC key
   }
 
   
-  // Squid 
-  squid.update();
-  squid.draw();
+  // Graphics...
+  graphicArray.forEach((graphic, index) => {
+    graphic.update();
+    graphic.draw();
+  });
+  
 
 
   // debug 

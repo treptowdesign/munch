@@ -17,8 +17,8 @@ export class Slime {
         this.radiusH = 0;
         this.radiusV = 0;
         this.angle = r.GetRandomValue(0, 359);
-        this.startColor = clr('red', 5); // start color when size is minSize
-        this.endColor = clr('red', 4); // end color when size is maxSize
+        this.startColor = clr('pink', 5);
+        this.endColor = clr('pink', 4); 
         this.isColliding = 0;
         this.alive = true;
       }
@@ -63,8 +63,8 @@ export class Hunter extends Slime {
         super(position, size, speed);
         this.type = 'hunter';
         // purple color
-        this.startColor = clr('pink', 5);
-        this.endColor = clr('pink', 4); 
+        this.startColor = clr('red', 5); // start color when size is minSize
+        this.endColor = clr('red', 4); // end color when size is maxSize
       }
       initializeAura(){
         // generate aura, pass in parent & scale factor (5x bigger radius)

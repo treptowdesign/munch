@@ -10,14 +10,14 @@ export class Aura {
       this.scale = scale;
       this.position = parent.position;
       this.size = parent.size * scale;
-      this.alive = true;
+      // this.alive = true;
     }
     update(){
-      this.position = this.parent.position;
-      this.size = this.parent.size * this.scale;
-      this.alive = this.parent.alive;
+      // this.position = this.parent.position;
+      // this.size = this.parent.size * this.scale;
+      // this.alive = this.parent.alive;
     }
     draw(){
-        r.DrawCircleV(this.position, this.size, clr('pink', 6, 10));
+        r.DrawCircleV(this.position, this.size, clr('pink', 6, 20));
     }
   }
