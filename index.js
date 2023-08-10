@@ -16,10 +16,11 @@ import {
   shrinkPlayer, 
   spikeAttack, 
   hunterSeek, 
-  slimeAvoid} from './Utilities/collision.js';
+  slimeAvoid
+} from './Utilities/collision.js';
 import {slimeArray, bacteriaArray, auraArray, genBacteria, genSlime} from './Utilities/generators.js';
 import {Player} from "./Entities/player.js";
-import {RadialFlagella, RadialGlobs, RadialSpikes, TripleTail, Glob, Spike} from "./Entities/graphics.js";
+import {RadialFlagella, RadialGlobs, RadialSpikes, TripleTail} from "./Entities/graphics.js";
 
 r.SetTargetFPS(60);
 r.InitWindow(GLOBALS.screen.width, GLOBALS.screen.height, 'Munch');  
@@ -49,9 +50,9 @@ while(bacteriaArray.length < GLOBALS.game.bacteriaNum){
 let graphicArray = [];
 let squid = new RadialFlagella({position: {x: 200 , y: 300}, number: 16, length: 100, size: 40, color: clr('blue', 5)});
 graphicArray.push(squid);
-let glob = new RadialGlobs({position: {x: 600 , y: 300}, number: 20, size: 40, color: clr('brown', 6)});
+let glob = new RadialGlobs({position: {x: 600 , y: 300}, number: 12, size: 40, color: clr('brown', 6)});
 graphicArray.push(glob);
-let spike = new RadialSpikes({position: {x: 200 , y: 500}, number: 14, size: 40, color: clr('red', 5)});
+let spike = new RadialSpikes({position: {x: 800 , y: 300}, number: 14, size: 40, color: clr('red', 5)});
 graphicArray.push(spike);
 let tails = new TripleTail({position: {x: 450 , y: 300}, length: 120, size: 30, color: clr('steel', 6)}); //position, length
 graphicArray.push(tails);
@@ -69,6 +70,9 @@ while (!r.WindowShouldClose()) { // Detect window close button or ESC key
 
   // UPDATE BACTERIA
   bacteriaArray.forEach((bacteria, index) => {
+    // split bacteria array into live/dead
+    let liveBacteriaArray = bacteriaArray.filter((bacteria) => bacteria.alive);
+    let deadBacteriaArray = bacteriaArray.filter((bacteria) => !bacteria.alive);
     // chance to re-spawn/regen
     if(!bacteria.active){
       let rand = r.GetRandomValue(1, 5000);

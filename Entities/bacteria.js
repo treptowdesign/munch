@@ -10,7 +10,7 @@ export class Bacteria {
     constructor(position) {
       this.position = position || {x: 0, y: 0};
       this.speed = {x: 0, y: 0};
-      this.size = 4;
+      this.size = 3;
       this.isColliding = 0;
       this.active = true;
       this.bonus = GLOBALS.game.bacteriaBonus;

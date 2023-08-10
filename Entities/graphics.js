@@ -439,6 +439,7 @@ export class TripleTail {
         // big arm
         // variable phase
             let phase = Math.random();
+            console.log(phase);
             let frequency = 2
             // create big arm
             let arm = new LineWave({
@@ -457,7 +458,8 @@ export class TripleTail {
             this.arms.push(arm);
             // create small arms
             for (let i = 0; i < (this.number -1); i++) {
-                phase = Math.random();
+                phase = Math.random(); // rando for 2nd arm
+                console.log(phase);
                 // frequency = Math.random();
                 arm = new LineWave({
                     position: {x: 0, y: 0},
