@@ -2,7 +2,7 @@ import pkg from 'raylib';
 const r = pkg;
 
 import {clr} from '../Utilities/color.js';
-import {matrixRotate, rotatePoint} from '../Utilities/helpers.js';
+import {matrixRotate, rotatePoint, addVertices, degreesToRadians, radiansToDegrees} from '../Utilities/helpers.js';
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -145,7 +145,10 @@ export class Spike {
         color = clr('white', 7),
         offset = 0,
         vertices = {v1: {x: 0, y: 0}, v2: {x: 0, y: 0}, v3: {x: 0, y: 0}},
-        phase = 0
+        phase = 0,
+        // rotated
+        rotAngle = 0,
+        parent
     } = {}) {
         this.position = position;
         this.height = height,
@@ -156,7 +159,11 @@ export class Spike {
         this.vertices = vertices,
         this.phase = phase,
         this.bounce = 0;
-        this.bounceRate = 800;
+        this.bounceRate = 400;
+        // rotated...
+        this.rotVerts = {v1: {x: 0, y: 0}, v2: {x: 0, y: 0}, v3: {x: 0, y: 0}};
+        this.rotAngle = rotAngle,
+        this.parent = parent
       }
       update(){
         // update...
@@ -169,9 +176,11 @@ export class Spike {
         this.vertices.v2 = r.Vector2(0 + this.bounce, -(this.width/2) + 0);
         this.vertices.v3 = r.Vector2(0 + this.bounce, (this.width/2) + 0);
         // store rotated points
-        // this.vertices.v1 = rotatePoint(this.vertices.v1, this.angle);
-        // this.vertices.v2 = rotatePoint(this.vertices.v2, this.angle);
-        // this.vertices.v3 = rotatePoint(this.vertices.v3, this.angle);
+        let pOrigin = this.parent.position;
+        let pAngle = radiansToDegrees(this.parent.angle); // radiansToDegrees
+        // handle translate & rotation
+        this.rotVerts.v1 = rotatePoint(addVertices(this.position, this.vertices.v1), this.rotAngle + pAngle);
+        this.rotVerts.v1 = addVertices(this.rotVerts.v1, pOrigin);
       }
       draw(){
         let that = this; // preserve scope for callback
@@ -183,12 +192,6 @@ export class Spike {
         });
         // draw collision point
         // r.DrawCircleV(rotatePoint(this.vertices.v1, this.angle), 2, clr('green', 5));
-        // r.DrawTriangle(
-        //     rotatePoint(this.vertices.v1, this.angle), 
-        //     rotatePoint(this.vertices.v2, this.angle), 
-        //     rotatePoint(this.vertices.v3, this.angle), 
-        //     clr('green', 5)
-        // ); // spike
       }
 }
 
@@ -203,13 +206,14 @@ export class Spike {
 //
 /////////////////////////////////////////////////////////////////////////////
 export class RadialFlagella {
-    constructor(position, number, length, size) {
+    constructor({position = {x: 0, y: 0}, number = 10, length = 100, size = 40, color = clr('white', 7)} = {}) {
         this.position = position; // position of origin point
         this.number = number; // number of arms
         this.length = length; // length of each arm
+        this.size = size; // origin offset
+        this.color = color;
         this.arms = []; // holds all the arms
         this.body = false;
-        this.size = size || 40; // origin offset
         this.initialize();
     }
     initialize() {
@@ -229,7 +233,7 @@ export class RadialFlagella {
                 offset: this.size, // size of the slime in the center
                 thickness: 2, // line stroke
                 color: clr('steel', 7, 75),
-                nodes: {start: true, end: true, color: clr('blue', 5), size: (this.size/10)}
+                nodes: {start: true, end: true, color: this.color, size: (this.size/10)}
             });
             // save angle of this arm for drawing - used only in this class so dont pass to LineWave 
             arm.angle = angleStep * i;
@@ -240,7 +244,7 @@ export class RadialFlagella {
         this.body = new Glob({
             position: this.position,
             size: this.size,
-            color: clr('blue', 5)
+            color: this.color
         });
     }
     update() {
@@ -274,12 +278,13 @@ export class RadialFlagella {
 //
 /////////////////////////////////////////////////////////////////////////////
 export class RadialGlobs {
-    constructor(position, number, bodySize) {
+    constructor({position = {x: 0, y: 0}, number = 10, size = 40, color = clr('white', 7)} = {}) {
         this.position = position; // position of origin point
         this.number = number; // number of arms
+        this.size = size; // origin offset
+        this.color = color;
         this.arms = []; // holds all the arms
         this.body = false;
-        this.bodySize = bodySize || 40; // origin offset
         this.initialize();
     }
     initialize() {
@@ -289,12 +294,12 @@ export class RadialGlobs {
             // create new LineWave for each arm
             let arm = new Glob({
                 position: {x: 0, y: 0}, 
-                size: (this.bodySize / 8), 
+                size: (this.size / 8), 
                 angle: 0, 
-                color: clr('brown', 6),
+                color: this.color,
                 deformRate: 600,
                 deformAmount: 20,
-                offset: this.bodySize
+                offset: this.size
             });
             // save angle of this arm for drawing - used only in this class so dont pass to LineWave 
             arm.pivotAngle = angleStep * i;
@@ -304,8 +309,8 @@ export class RadialGlobs {
         // glob: position, 
         this.body = new Glob({
             position: this.position,
-            size: this.bodySize,
-            color: clr('brown', 6)
+            size: this.size,
+            color: this.color
         });
     }
     update() {
@@ -339,13 +344,13 @@ export class RadialGlobs {
 //
 /////////////////////////////////////////////////////////////////////////////
 export class RadialSpikes {
-    constructor(position, number, bodySize, color) {
+    constructor({position = {x: 0, y: 0}, number = 16, size = 40, color = clr('white', 7)} = {}) {
         this.position = position; // position of origin point
         this.number = number; // number of arms
+        this.size = size; // origin offset
         this.arms = []; // holds all the arms
         this.body = false;
-        this.bodySize = bodySize || 40; // origin offset
-        this.color = color || clr('white', 7);
+        this.color = color;
         this.angle = 0
         this.initialize();
     }
@@ -359,10 +364,11 @@ export class RadialSpikes {
                 position: {x: 0 , y: 0}, 
                 height: 25, 
                 width: 15, 
-                offset: this.bodySize,
+                offset: this.size,
                 color: this.color,
                 phase: phase,
-                // angle: (angleStep * i) * (180 / Math.PI)
+                rotAngle: (angleStep * i) * (180 / Math.PI),
+                parent: this
             });
             // save angle of this arm for drawing - used only in this class so dont pass to LineWave 
             arm.pivotAngle = angleStep * i;
@@ -372,7 +378,7 @@ export class RadialSpikes {
         // glob: position, 
         this.body = new Glob({
             position: this.position,
-            size: this.bodySize,
+            size: this.size,
             color: this.color
         });
     }
@@ -383,9 +389,8 @@ export class RadialSpikes {
         }
         // update glob
         this.body.update();
-
         // rotate over time...
-        // this.angle += 0.002;
+        this.angle += 0.005;
     }
     draw() {
         let that = this; // preserve scope for callback
@@ -399,15 +404,11 @@ export class RadialSpikes {
             }
         });
         // draw real world points (rotated twice)
-        // for (let arm of this.arms) {
-        //     let v1 = {x: this.position.x + arm.vertices.v1.x, y: this.position.y + arm.vertices.v1.y}
-        //     let v2 = {x: this.position.x + arm.vertices.v2.x, y: this.position.y + arm.vertices.v2.y}
-        //     let v3 = {x: this.position.x + arm.vertices.v3.x, y: this.position.y + arm.vertices.v3.y}
-        //     v1 = rotatePoint(v1, arm.pivotAngle);
-        //     v2 = rotatePoint(v2, arm.pivotAngle);
-        //     v3 = rotatePoint(v3, arm.pivotAngle);
-        //     r.DrawTriangle(v1, v2, v3, clr('green', 5));
-        // }
+        for (let arm of this.arms) {
+            r.DrawCircleV(arm.rotVerts.v1, 2, clr('green', 5)); // point
+        }
+        let arm = this.arms[0];
+        r.DrawCircleV(arm.rotVerts.v1, 2, clr('green', 7)); // point
         // draw slime body
         this.body.draw();
     }
@@ -424,13 +425,14 @@ export class RadialSpikes {
 //
 /////////////////////////////////////////////////////////////////////////////
 export class TripleTail {
-    constructor(position, size) {
+    constructor({position = {x: 0, y: 0}, length = 100, size = 30, color = clr('white', 7)} = {}) {
         this.position = position; // position of origin point
+        this.length = length; // length of each arm
+        this.size = size;
+        this.color = color;
         this.number = 3; // number of arms
-        this.size = size; // length of each arm
-        this.bodySize = 30;
         this.arms = []; // holds all the arms
-        this.angle = 180 * Math.PI / 180; // faces backwards, get rads from degree 
+        this.angle = degreesToRadians(180); // faces backwards, get rads from degree 
         this.initialize();
     }
     initialize() {
@@ -441,15 +443,15 @@ export class TripleTail {
             // create big arm
             let arm = new LineWave({
                 position: {x: 0, y: 0},
-                length: this.size,
+                length: this.length,
                 amplitude: 5,
                 frequency: frequency,
                 speed: 0.5,
                 phase: phase,
-                offset: 30, // size of the slime in the center
+                offset: this.size, // size of the slime in the center
                 thickness: 2, // line stroke
                 color: clr('steel', 7, 75),
-                nodes: {start: true, end: false, color: clr('steel', 6), size: this.bodySize/5}
+                nodes: {start: true, end: false, color: this.color, size: this.size/5}
             });
             // save angle of this arm for drawing - used only in this class so dont pass to LineWave 
             this.arms.push(arm);
@@ -459,15 +461,15 @@ export class TripleTail {
                 // frequency = Math.random();
                 arm = new LineWave({
                     position: {x: 0, y: 0},
-                    length: (this.size * 0.75),
+                    length: (this.length * 0.75),
                     amplitude: 12,
                     frequency: frequency,
                     speed: 0.5,
                     phase: phase,
-                    offset: 30, // size of the slime in the center
+                    offset: this.size, // size of the slime in the center
                     thickness: 2, // line stroke
-                    color: clr('brown', 7, 75),
-                    nodes: {start: true, end: false, color: clr('steel', 6), size: this.bodySize/5}
+                    color: clr('steel', 7, 75),
+                    nodes: {start: true, end: false, color: this.color, size: this.size/5}
                 });
                 this.arms.push(arm);
             }
@@ -487,7 +489,7 @@ export class TripleTail {
             });
         }
         // draw slime body
-        r.DrawCircleV(this.position, 30, clr('steel', 6));
+        r.DrawCircleV(this.position, 30, this.color);
         r.DrawCircleV(this.position, (30 * 0.9), clr('steel', 5, 60));
     }
 }

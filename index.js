@@ -47,14 +47,14 @@ while(bacteriaArray.length < GLOBALS.game.bacteriaNum){
 
 // graphics tests
 let graphicArray = [];
-let squid = new RadialFlagella({x: 200 , y: 300}, 16, 100, 40); //position, number, length, size
+let squid = new RadialFlagella({position: {x: 200 , y: 300}, number: 16, length: 100, size: 40, color: clr('blue', 5)});
 graphicArray.push(squid);
-let tails = new TripleTail({x: 450 , y: 300}, 120); //position, size
-graphicArray.push(tails);
-let glob = new RadialGlobs({x: 600 , y: 300}, 10, 40); //position, number, size
+let glob = new RadialGlobs({position: {x: 600 , y: 300}, number: 20, size: 40, color: clr('brown', 6)});
 graphicArray.push(glob);
-let spike = new RadialSpikes({x: 200 , y: 500}, 14, 40, clr('red', 5)); //position, number, size, color
+let spike = new RadialSpikes({position: {x: 200 , y: 500}, number: 14, size: 40, color: clr('red', 5)});
 graphicArray.push(spike);
+let tails = new TripleTail({position: {x: 450 , y: 300}, length: 120, size: 30, color: clr('steel', 6)}); //position, length
+graphicArray.push(tails);
 
 
 
@@ -110,8 +110,8 @@ while (!r.WindowShouldClose()) { // Detect window close button or ESC key
     aura.update();
     if(!aura.parent.alive){
       auraArray.splice(index, 1);
-      console.log('Aura Num: '+auraArray.length);
-      console.log('Hunter Num: '+hunterArray.length);
+      // console.log('Aura Num: '+auraArray.length);
+      // console.log('Hunter Num: '+hunterArray.length);
     }
     aura.draw();
   })
@@ -158,8 +158,8 @@ while (!r.WindowShouldClose()) { // Detect window close button or ESC key
     player.draw();
     // debug
     // r.DrawText('Player Size: ' + player.size + '/'+GLOBALS.game.maxSize, 20, 20, 30, clr('steel', 6));
-    r.DrawText('Angle: ' + player.angle, 20, 60, 30, clr('steel', 6));
-    r.DrawText('MaxSpeed: ' + player.getMaxSpeed(), 20, 100, 30, clr('steel', 6));
+    // r.DrawText('Angle: ' + player.angle, 20, 60, 30, clr('steel', 6));
+    // r.DrawText('MaxSpeed: ' + player.getMaxSpeed(), 20, 100, 30, clr('steel', 6));
   } else if(gameState == 'win'){ 
     // Win Screen
     player.speed.x = 0;
@@ -185,7 +185,7 @@ while (!r.WindowShouldClose()) { // Detect window close button or ESC key
 
 
   // debug 
-  r.DrawText('FPS: ' + r.GetFPS(), 20, 20, 30, clr('steel', 6)); 
+  // r.DrawText('FPS: ' + r.GetFPS(), 20, 20, 30, clr('steel', 6)); 
 
   r.EndDrawing();
 

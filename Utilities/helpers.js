@@ -93,6 +93,7 @@ export function rotatePoint(point, angleDeg) {
   };
 }
 
+// abstracted raylib transform/rotate
 export function matrixRotate(origin, angle, drawCallback){
   // push into matrix
   r.rlPushMatrix();
@@ -104,6 +105,24 @@ export function matrixRotate(origin, angle, drawCallback){
   drawCallback();
   // pop out of matrix
   r.rlPopMatrix();
+}
+
+// add two vertices together
+export function addVertices(v1, v2){
+  return {
+      x: v1.x + v2.x,
+      y: v1.y + v2.y
+  };
+}
+
+// Convert degrees to radians
+export function degreesToRadians(degrees) {
+  return degrees * (Math.PI / 180);
+}
+
+// Convert radians to degrees
+export function radiansToDegrees(radians) {
+  return radians * (180 / Math.PI);
 }
 
 
