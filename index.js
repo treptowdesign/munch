@@ -6,7 +6,7 @@ import pkg from 'raylib';
 const r = pkg;
 
 import {GLOBALS} from './globals.js';
-import {clr} from './Utilities/color.js';
+import {clr, getColor} from './Utilities/color.js';
 import {oob} from './Utilities/helpers.js';
 import {
   checkCollision, 
@@ -20,7 +20,7 @@ import {
 } from './Utilities/collision.js';
 import {slimeArray, bacteriaArray, auraArray, genBacteria, genSlime} from './Utilities/generators.js';
 import {Player} from "./Entities/player.js";
-import {RadialFlagella, RadialGlobs, RadialSpikes, TripleTail} from "./Entities/graphics.js";
+import {RadialFlagella, RadialGlobs, RadialSpikes, TripleTail, ColorTest} from "./Entities/graphics.js";
 
 r.SetTargetFPS(60);
 r.InitWindow(GLOBALS.screen.width, GLOBALS.screen.height, 'Munch');  
@@ -48,7 +48,7 @@ while(bacteriaArray.length < GLOBALS.game.bacteriaNum){
 
 // graphics tests
 let graphicArray = [];
-let squid = new RadialFlagella({position: {x: 200 , y: 300}, number: 16, length: 100, size: 40, color: clr('blue', 5)});
+let squid = new RadialFlagella({position: {x: 200 , y: 300}, number: 16, length: 100, size: 40, color: getColor('blue', 75)});
 graphicArray.push(squid);
 let glob = new RadialGlobs({position: {x: 600 , y: 300}, number: 12, size: 40, color: clr('brown', 6)});
 graphicArray.push(glob);
@@ -56,6 +56,15 @@ let spike = new RadialSpikes({position: {x: 800 , y: 300}, number: 14, size: 40,
 graphicArray.push(spike);
 let tails = new TripleTail({position: {x: 450 , y: 300}, length: 120, size: 30, color: clr('steel', 6)}); //position, length
 graphicArray.push(tails);
+
+// let testX = 200;
+// let clrKeys = ['red', 'green', 'blue', 'pink', 'brown', 'steel'];
+// for(let i = 0; i < 6; i++){
+//   let colorTest = new ColorTest({position: {x: testX , y: 500}, size: 30, colorKey: clrKeys[i]});
+//   graphicArray.push(colorTest);
+//   testX += 100;
+// }
+
 
 
 
@@ -114,8 +123,8 @@ while (!r.WindowShouldClose()) { // Detect window close button or ESC key
     aura.update();
     if(!aura.parent.alive){
       auraArray.splice(index, 1);
-      console.log('Aura Num: '+auraArray.length);
-      console.log('Hunter Num: '+hunterArray.length);
+      // console.log('Aura Num: '+auraArray.length);
+      // console.log('Hunter Num: '+hunterArray.length);
     }
     aura.draw();
   })

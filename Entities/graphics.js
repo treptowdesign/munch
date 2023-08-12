@@ -1,188 +1,15 @@
 import pkg from 'raylib';
 const r = pkg;
 
-import {clr} from '../Utilities/color.js';
+import {clr, getColor} from '../Utilities/color.js';
 import {matrixRotate, rotatePoint, addVertices, degreesToRadians, radiansToDegrees} from '../Utilities/helpers.js';
 
-/////////////////////////////////////////////////////////////////////////////
-//
-//
-//
-// LineWave
-//
-//
-//
-/////////////////////////////////////////////////////////////////////////////
-export class LineWave {
-    constructor({ // defaults
-        position = {x: 0, y: 0}, 
-        length, 
-        amplitude, 
-        frequency, 
-        speed, 
-        phase = 0, 
-        offset = 0, 
-        thickness = 1,
-        color = clr('white', 7),
-        nodes = {start: false, end: false, color: clr('white', 7), size: 4}
-    } = {}) {
-        this.position = position;
-        this.length = length;
-        this.amplitude = amplitude;
-        this.frequency = frequency;
-        this.speed = speed;
-        this.phase = phase;
-        this.thickness = thickness;
-        this.offset = offset;
-        this.color = color;
-        this.pointCount = 0;
-        this.points = [];
-        this.nodes = nodes;
-        this.initialize();
-    }
-    initialize(){
-        this.pointCount = Math.ceil(this.length - this.offset);
-    }
-    update() {
-        // increase the phase to move the wave over time
-        this.phase += this.speed * r.GetFrameTime();
-        // clear points
-        this.points = [];
-        // calc next round of points
-        for (let i = 0; i < this.pointCount; i++) {
-            let ampScale = i/this.pointCount; // percent for anchoring origin point
-            let x = (this.offset + this.position.x) + i;
-            let y = this.position.y + (ampScale * this.amplitude) * Math.sin(2 * Math.PI * (this.frequency * i / this.pointCount + this.phase));
-            this.points.push({x, y});
-        }
-    }
-    draw() {
-        // draw line w/ points
-        for(let i = 0; i < this.points.length - 1; i++) {
-            let dx = this.points[i+1].x - this.points[i].x;
-            let dy = this.points[i+1].y - this.points[i].y;
-            let distance = Math.sqrt(dx * dx + dy * dy);
-            let angle = Math.atan2(dy, dx);
-            let that = this; // preserve scope for callback
-            // use matrix to translate & rotate
-            matrixRotate(this.points[i], angle, function(){ // origin, angle, draw as callback
-                r.DrawRectangleLines(0, -that.thickness / 2, distance, that.thickness, that.color);
-            });
-            // draw doodads (circle on start and end cap)
-            if(this.nodes.start){
-                r.DrawCircleV(this.points[0], this.nodes.size, this.nodes.color);
-            }
-            if(this.nodes.end){
-             r.DrawCircleV(this.points[this.pointCount -1], this.nodes.size, this.nodes.color); 
-            } 
-        }
-    }
-}
+import { LineWave } from './Graphics/linewave.js';
+import { Glob } from './Graphics/glob.js';
+import { Spike } from './Graphics/spike.js';
 
 
-/////////////////////////////////////////////////////////////////////////////
-//
-//
-//
-// Glob
-//
-//
-//
-/////////////////////////////////////////////////////////////////////////////
-export class Glob {
-    constructor({ // defaults
-        position = {x: 0, y: 0}, 
-        size = 10, 
-        angle = 0, 
-        color = clr('white', 7),
-        deformRate = 600,
-        deformAmount = 20,
-        offset = 0
-    } = {}) {
-        this.position = position || {x: 0, y: 0};
-        this.size = size;
-        this.radiusH = 0;
-        this.radiusV = 0;
-        this.angle = angle;
-        this.color = color;
-        this.deformRate = deformRate; // speed at which it deforms (sine freq)
-        this.deformAmount = deformAmount; // % of size it can deform
-        this.offset = offset;
-      }
-      update(){
-        // sine wave deform
-        const timeH = Date.now() / this.deformRate;  
-        const timeV = Date.now() / this.deformRate;
-        this.radiusH = this.size +  Math.sin(timeH) * (this.size / this.deformAmount);  // Radius changes between 1/10 of size
-        this.radiusV = this.size + Math.cos(timeV) * (this.size / this.deformAmount);  // Radius changes between 1/10 of size
-      }
-      draw(){
-        let that = this; // preserve scope for callback
-        // matrix, translate, rotate & draw
-        matrixRotate(this.position, this.angle, function(){ // origin, angle, draw as callback
-            r.DrawEllipse(0 + that.offset, 0, that.radiusH, that.radiusV, that.color);  
-        });
 
-        // r.DrawText('Angle: ' + this.angle, this.position.x, this.position.y, 12, r.DARKGRAY);
-      }
-}
-
-/////////////////////////////////////////////////////////////////////////////
-//
-//
-//
-// Spike
-//
-//
-//
-/////////////////////////////////////////////////////////////////////////////
-export class Spike {
-    constructor({ // defaults
-        position = {x: 0, y: 0}, 
-        height = 10, 
-        width = 10,
-        angle = 0, 
-        color = clr('white', 7),
-        offset = 0,
-        vertices = {v1: {x: 0, y: 0}, v2: {x: 0, y: 0}, v3: {x: 0, y: 0}},
-        phase = 0,
-        // rotated
-        rotAngle = 0,
-        parent
-    } = {}) {
-        this.position = position;
-        this.height = height,
-        this.width = width,
-        this.angle = angle;
-        this.color = color;
-        this.offset = offset;
-        this.vertices = vertices,
-        this.phase = phase,
-        this.bounce = 0;
-        this.bounceRate = 400;
-        // rotated...
-        this.rotVerts = {v1: {x: 0, y: 0}, v2: {x: 0, y: 0}, v3: {x: 0, y: 0}};
-        this.rotAngle = rotAngle,
-        this.parent = parent
-      }
-      update(){
-        // update...
-        let bounceTime = Date.now() / this.bounceRate;
-        let bounceFactor = Math.sin(bounceTime * this.phase);
-        // this.bounce = bounceFactor;
-        this.bounce = (this.offset * 0.8) + (this.offset * 0.1 * bounceFactor);
-        // update spike points
-        this.vertices.v1 = r.Vector2((0 + this.height + this.bounce), 0);
-        this.vertices.v2 = r.Vector2(0 + this.bounce, -(this.width/2) + 0);
-        this.vertices.v3 = r.Vector2(0 + this.bounce, (this.width/2) + 0);
-      }
-      draw(){
-        let that = this; // preserve scope for callback
-        matrixRotate(this.position, this.angle, function(){ // origin, angle, draw as callback
-            r.DrawTriangle(that.vertices.v1, that.vertices.v2, that.vertices.v3, that.color); // spike 
-        });
-      }
-}
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -207,7 +34,7 @@ export class RadialFlagella {
     }
     initialize() {
         // divide a full circle into even segments based on the number of arms
-        const angleStep = 2 * Math.PI / this.number;
+        const angleStep = 2 * Math.PI / this.number; // RADIANS
         for (let i = 0; i < this.number; i++) {
             // variable phase
             let phase = Math.random();
@@ -278,7 +105,7 @@ export class RadialGlobs {
     }
     initialize() {
         // divide a full circle into even segments based on the number of arms
-        const angleStep = 2 * Math.PI / this.number;
+        const angleStep = 2 * Math.PI / this.number; // RADIANS
         for (let i = 0; i < this.number; i++) {
             // create new LineWave for each arm
             let arm = new Glob({
@@ -337,30 +164,29 @@ export class RadialSpikes {
         this.position = position; // position of origin point
         this.number = number; // number of arms
         this.size = size; // origin offset
+        this.color = color;
         this.arms = []; // holds all the arms
         this.body = false;
-        this.color = color;
-        this.angle = 0
+        this.angle = 0;
         this.initialize();
     }
     initialize() {
-        // divide a full circle into even segments based on the number of arms
-        const angleStep = 2 * Math.PI / this.number;
+        // divide a full circle into even segments based on the number of arms (in radians)
+        const angleStep = (2 * Math.PI / this.number); // RADIANS
         for (let i = 0; i < this.number; i++) {
             // create new LineWave for each arm
             let phase = Math.random();
             let arm = new Spike({
-                position: {x: 0 , y: 0}, 
+                // position: {x: 0, y: 0}, 
+                position: this.position, 
                 height: 25, 
                 width: 15, 
                 offset: this.size,
                 color: this.color,
                 phase: phase,
-                rotAngle: (angleStep * i) * (180 / Math.PI),
-                parent: this
+                angle: radiansToDegrees(angleStep * i), // degrees
+                rotAngle: (angleStep * i) * (180 / Math.PI), // radiansToDegrees 
             });
-            // save angle of this arm for drawing - used only in this class so dont pass to LineWave 
-            arm.pivotAngle = angleStep * i;
             // add the new arm to the list
             this.arms.push(arm);
         }
@@ -373,31 +199,26 @@ export class RadialSpikes {
     }
     update() {
         // update all arms
-        for (let arm of this.arms) {
-            arm.update();
-        }
+        for (let arm of this.arms) { arm.update(); }
         // update glob
         this.body.update();
         // rotate over time...
-        this.angle += 0.005;
+        this.angle += 0.005; // replace with property & appropriate time settings
     }
     draw() {
-        let that = this; // preserve scope for callback
-        // draw all arms
-        matrixRotate(this.position, this.angle, function(){ // origin, angle, draw as callback
-            for (let arm of that.arms) {
-                // use matrix to translate & rotate
-                matrixRotate({x: 0, y: 0}, arm.pivotAngle, function(){ // origin, angle, draw as callback
-                    arm.draw();
-                });
-            }
-        });
-        // draw real world points (rotated twice)
+        // loop through each arm
         for (let arm of this.arms) {
-            let pAngle = radiansToDegrees(this.angle); // radiansToDegrees
-            let point = rotatePoint(addVertices(arm.position, arm.vertices.v1), arm.rotAngle + pAngle);
-            point = addVertices(point, this.position);
-            r.DrawCircleV(point, 2, clr('green', 5)); // point
+            // loop through each point in the triangle
+            let armPoints = [];
+            for(let v of arm.vertices){
+                const pAngle = radiansToDegrees(this.angle); // radiansToDegrees
+                let point = rotatePoint(v, pAngle);
+                point = addVertices(point, this.position);
+                armPoints.push(point);
+                r.DrawCircleV(point, 2, clr('green', 5)); // point
+            }
+            // draw triangle from points
+            r.DrawTriangle(armPoints[0], armPoints[1], armPoints[2], this.color); // spike
         }
         // draw slime body
         this.body.draw();
@@ -429,7 +250,6 @@ export class TripleTail {
         // big arm
         // variable phase
             let phase = Math.random();
-            console.log(phase);
             let frequency = 2
             // create big arm
             let arm = new LineWave({
@@ -449,7 +269,6 @@ export class TripleTail {
             // create small arms
             for (let i = 0; i < (this.number -1); i++) {
                 phase = Math.random(); // rando for 2nd arm
-                console.log(phase);
                 // frequency = Math.random();
                 arm = new LineWave({
                     position: {x: 0, y: 0},
@@ -485,6 +304,75 @@ export class TripleTail {
         r.DrawCircleV(this.position, (30 * 0.9), clr('steel', 5, 60));
     }
 }
+
+/////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+// COLOR TEST
+//
+//
+//
+/////////////////////////////////////////////////////////////////////////////
+export class ColorTest {
+    constructor({position = {x: 0, y: 0}, size = 40, colorKey = 'red'} = {}) {
+        this.position = position;
+        this.size = size; // origin offset
+        this.colorKey = colorKey;
+        this.initialize();
+        this.color = 'red';
+        this.factor = 0;
+        
+    }
+    initialize(){
+        console.log('color test active');
+    }
+    update(){
+        let time = Date.now() / 1200;
+        this.factor = Math.sin(time); // -1 to 1 in a sinewave
+        // normalize to 1-100
+        this.factor = ((this.factor - (-1)) / (1 - (-1))) * (100 - 0) + 0;
+        // get color % by factor
+        this.color = getColor(this.colorKey, this.factor);
+    }
+    draw(){
+        r.DrawCircleV(this.position, this.size, this.color);
+        r.DrawText(this.colorKey, (this.position.x - this.size/2), (this.position.y + this.size), 12, r.WHITE);
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+// TEMPLATE
+//
+//
+//
+/////////////////////////////////////////////////////////////////////////////
+export class GraphicTemplate {
+    constructor({position = {x: 0, y: 0}, size = 40, color = clr('white', 7)} = {}) {
+        this.position = position;
+        this.size = size; // origin offset
+        this.color = color;
+        this.angle = 0;
+        this.initialize();
+    }
+    initialize(){
+        console.log('template init');
+    }
+    update(){
+        
+    }
+    draw(){
+        r.DrawCircleV(this.position, this.size, this.color);
+    }
+}
+
+
+
+
+
 
 /////////////////////////////////////////////////////////////////////////////
 //

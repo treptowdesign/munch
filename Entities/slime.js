@@ -1,6 +1,5 @@
 import pkg from 'raylib';
-import {colorGradient} from '../Utilities/helpers.js';
-import {clr} from '../Utilities/color.js';
+import {clr, colorGradient} from '../Utilities/color.js';
 import {GLOBALS} from '../globals.js'
 import {genAura} from '../Utilities/generators.js';
 const r = pkg;

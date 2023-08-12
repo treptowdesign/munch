@@ -1,5 +1,5 @@
 import pkg from 'raylib';
-import {hexToRGB, randBool, colorGradient} from '../Utilities/helpers.js';
+import {randBool} from '../Utilities/helpers.js';
 import {clr} from '../Utilities/color.js';
 import {GLOBALS} from '../globals.js'
 

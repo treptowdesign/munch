@@ -2,24 +2,6 @@ import pkg from 'raylib';
 import { GLOBALS } from '../globals.js'
 const r = pkg;
 
-// convert a hev value to RGP w/optional alpha
-export function hexToRGB(hex, alpha) {
-  let r = 0, g = 0, b = 0;
-  // 3 digits
-  if (hex.length == 4) {
-    r = "0x" + hex[1] + hex[1];
-    g = "0x" + hex[2] + hex[2];
-    b = "0x" + hex[3] + hex[3];
-  }
-  // 6 digits
-  else if (hex.length == 7) {
-    r = "0x" + hex[1] + hex[2];
-    g = "0x" + hex[3] + hex[4];
-    b = "0x" + hex[5] + hex[6];
-  }
-  return {r: +r, g: +g, b: +b, a: (alpha || 255)};
-}
-
 // returns true if out of bounds, includes an optional offscreen buffer
 export function oob(pos, buffer){
   if(
@@ -71,20 +53,10 @@ export function randBool(){
   return r.GetRandomValue(0, 1) == 0 ? false : true;
 }
 
-// returns a blend between two colors at a certain %
-export function colorGradient(start, end, ratio){
-  return {
-    r: Math.round(start.r + ratio * (end.r - start.r)),
-    g: Math.round(start.g + ratio * (end.g - start.g)),
-    b: Math.round(start.b + ratio * (end.b - start.b)),
-    a: 255
-  };
-}
-
 // rotate a point by an angle
-// this rotates a x,y point around (0, 0)
+// this rotates a x,y point around (0, 0), translation needs to be done outside
 export function rotatePoint(point, angleDeg) {
-  const angleRad = angleDeg * Math.PI / 180;
+  const angleRad = angleDeg * Math.PI / 180; // degreesToRadians
   const cos = Math.cos(angleRad);
   const sin = Math.sin(angleRad);
   return {
@@ -100,7 +72,7 @@ export function matrixRotate(origin, angle, drawCallback){
   // origin x/y to center at translate position
   r.rlTranslatef(origin.x, origin.y, 0);
   // rotation
-  r.rlRotatef(angle * (180 / Math.PI), 0, 0, 1);
+  r.rlRotatef(angle * (180 / Math.PI), 0, 0, 1); // radiansToDegrees
   // draw callback
   drawCallback();
   // pop out of matrix
@@ -109,10 +81,7 @@ export function matrixRotate(origin, angle, drawCallback){
 
 // add two vertices together
 export function addVertices(v1, v2){
-  return {
-      x: v1.x + v2.x,
-      y: v1.y + v2.y
-  };
+  return { x: (v1.x + v2.x), y: (v1.y + v2.y) };
 }
 
 // Convert degrees to radians

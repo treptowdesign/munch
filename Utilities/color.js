@@ -1,5 +1,3 @@
-import {hexToRGB} from './helpers.js';
-
 const base = '#150a1f';
 const white = '#ffffff';
 const colors = {
@@ -29,6 +27,7 @@ const colors = {
     }
 }
 
+// basic color 
 export function clr(color, lightness, opacity){
     let colorHex;
     if(color == 'base'){
@@ -40,4 +39,51 @@ export function clr(color, lightness, opacity){
     }
     let alpha = opacity ? ((opacity / 100) * 255) : 255;
     return hexToRGB(colorHex, alpha);
+}
+
+// returns a blend between two colors at a certain %
+export function colorGradient(start, end, ratio){
+    return {
+      r: Math.round(start.r + ratio * (end.r - start.r)),
+      g: Math.round(start.g + ratio * (end.g - start.g)),
+      b: Math.round(start.b + ratio * (end.b - start.b)),
+      a: Math.round(start.a + ratio * (end.a - start.a)), // 255
+    };
+}
+
+// convert a hev value to RGP w/optional alpha
+export function hexToRGB(hex, alpha) {
+    let r = 0, g = 0, b = 0;
+    // 3 digits
+    if (hex.length == 4) {
+      r = "0x" + hex[1] + hex[1];
+      g = "0x" + hex[2] + hex[2];
+      b = "0x" + hex[3] + hex[3];
+    }
+    // 6 digits
+    else if (hex.length == 7) {
+      r = "0x" + hex[1] + hex[2];
+      g = "0x" + hex[3] + hex[4];
+      b = "0x" + hex[5] + hex[6];
+    }
+    return {r: +r, g: +g, b: +b, a: (alpha || 255)};
+}
+
+// enter a color key and %, get the color in that gradient
+export function getColor(colorKey, percentage) {
+    // clamp %
+    percentage = Math.max(0, Math.min(100, percentage));
+    // get closest color idx
+    let lowerIndex = Math.floor(percentage / (100/7)); // 8 colors in palette
+    let upperIndex = Math.ceil(percentage / (100/7));
+    // clamp idx 0-7
+    lowerIndex = Math.max(0, Math.min(7, lowerIndex));
+    upperIndex = Math.max(0, Math.min(7, upperIndex));
+    // get 2x colors
+    const lowerColor = hexToRGB(colors[colorKey][lowerIndex]);
+    const upperColor = hexToRGB(colors[colorKey][upperIndex]);
+    // blend amount
+    const ratio = (percentage % (100/7)) / (100/7);
+    // return color
+    return colorGradient(lowerColor, upperColor, ratio);
 }
