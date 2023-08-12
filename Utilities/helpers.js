@@ -56,7 +56,7 @@ export function randBool(){
 // rotate a point by an angle
 // this rotates a x,y point around (0, 0), translation needs to be done outside
 export function rotatePoint(point, angleDeg) {
-  const angleRad = angleDeg * Math.PI / 180; // degreesToRadians
+  const angleRad = degreesToRadians(angleDeg); // degreesToRadians
   const cos = Math.cos(angleRad);
   const sin = Math.sin(angleRad);
   return {
@@ -72,7 +72,8 @@ export function matrixRotate(origin, angle, drawCallback){
   // origin x/y to center at translate position
   r.rlTranslatef(origin.x, origin.y, 0);
   // rotation
-  r.rlRotatef(angle * (180 / Math.PI), 0, 0, 1); // radiansToDegrees
+  // r.rlRotatef(angle * (180 / Math.PI), 0, 0, 1); // radiansToDegrees
+  r.rlRotatef(angle, 0, 0, 1); // DEGREES
   // draw callback
   drawCallback();
   // pop out of matrix

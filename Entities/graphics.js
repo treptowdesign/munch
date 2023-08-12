@@ -52,7 +52,7 @@ export class RadialFlagella {
                 nodes: {start: true, end: true, color: this.color, size: (this.size/10)}
             });
             // save angle of this arm for drawing - used only in this class so dont pass to LineWave 
-            arm.angle = angleStep * i;
+            arm.angle = radiansToDegrees(angleStep * i);
             // add the new arm to the list
             this.arms.push(arm);
         }
@@ -117,8 +117,8 @@ export class RadialGlobs {
                 deformAmount: 20,
                 offset: this.size
             });
-            // save angle of this arm for drawing - used only in this class so dont pass to LineWave 
-            arm.pivotAngle = angleStep * i;
+            // arm angle (DEGREES)
+            arm.pivotAngle = radiansToDegrees(angleStep * i);
             // add the new arm to the list
             this.arms.push(arm);
         }
@@ -243,7 +243,7 @@ export class TripleTail {
         this.color = color;
         this.number = 3; // number of arms
         this.arms = []; // holds all the arms
-        this.angle = degreesToRadians(180); // faces backwards, get rads from degree 
+        this.angle = 180; // faces backwards (degrees)
         this.initialize();
     }
     initialize() {
@@ -322,7 +322,6 @@ export class ColorTest {
         this.initialize();
         this.color = 'red';
         this.factor = 0;
-        
     }
     initialize(){
         console.log('color test active');

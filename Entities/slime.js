@@ -53,7 +53,7 @@ export class Slime {
         r.rlRotatef(this.angle, 0, 0, 1);
         r.DrawEllipse(0, 0, this.radiusH, this.radiusV, this.getColor());  // drawing at (0, 0) because we've translated the canvas
         r.rlPopMatrix();
-        // r.DrawText('Angle: ' + this.angle, this.position.x, this.position.y, 12, r.DARKGRAY);
+        // r.DrawText('Angle: ' + this.angle, this.position.x, this.position.y, 12, r.DARKGRAY); 
       }
 }
 

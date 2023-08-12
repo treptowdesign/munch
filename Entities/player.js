@@ -156,7 +156,7 @@ export class Player {
       this.spike.intertia = this.size;
     }
     draw(){
-      // let that = this; // preserve scope for callback
+      // let that = this; // preserve scope for callback (pass angle as degrees)
       // matrixRotate(this.position, this.angle, function(){ // origin, angle, draw as callback
       //   r.DrawTriangle(that.spike.v1, that.spike.v2, that.spike.v3, clr('green', 7, 65)); // spike 
       //   r.DrawEllipse(0, 0, that.radiusH, that.radiusV, that.color);  // drawing at (0, 0) because we've translated the canvas
