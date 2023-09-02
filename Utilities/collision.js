@@ -1,53 +1,89 @@
-import { GLOBALS } from '../globals.js'
+import pkg from 'raylib';
+import { GLOBALS } from '../globals.js';
+const r = pkg;
 
 // Check Collision 
-export function checkCollision(entityA, entityB, handlers, target){
+export function checkCollision(entityA, entityB, handlers){
+  // calc
   const distX = entityA.position.x - entityB.position.x;
   const distY = entityA.position.y - entityB.position.y;
   const distance = Math.sqrt(distX * distX + distY * distY);
   const isCollision = distance < entityA.size + entityB.size;
-  if(isCollision && handlers){
+  // check entities, handlers & collide
+  if((entityA && entityB && handlers) && isCollision){
+    // store props as obj to pass to handlers
+    const props = {
+      distX: distX, 
+      distY: distY, 
+      distance: distance,
+      normalVector: r.Vector2((distX / distance), (distY / distance)),
+      relativeVelocity: r.Vector2((entityA.speed.x - entityB.speed.x), (entityA.speed.y - entityB.speed.y))
+    }
+    // run handler(s)
     if(typeof handlers === 'function') {
       // single handler
-      handlers(entityA, entityB, target);
+      handlers(entityA, entityB, props);
     } else if(Array.isArray(handlers)) {
       // array of handlers
       for(let i = 0; i < handlers.length; i++) {
-        handlers[i](entityA, entityB, target);
+        handlers[i](entityA, entityB, props);
       }
     }
   } 
   return isCollision;
-  }
-  
+}
+
 // Reflect/Bounce
-export function reflect(entityA, entityB){
-    // set collide 
-    entityA.isColliding = 5;
-    entityB.isColliding = 5;
-    // Run Collide Handler 
-    const distX = entityA.position.x - entityB.position.x;
-    const distY = entityA.position.y - entityB.position.y;
-    const distance = Math.sqrt(distX * distX + distY * distY);
-    // Calculate normal vector
-    const nx = distX / distance;
-    const ny = distY / distance;
-    // Calculate relative velocity
-    const vx = entityA.speed.x - entityB.speed.x;
-    const vy = entityA.speed.y - entityB.speed.y;
-    // Calculate relative velocity in terms of the normal direction
-    const speedOnNormal = vx * nx + vy * ny;
-    // Perform collision response if moving towards each other
-    if (speedOnNormal < 0) {
-      // account for size 
-      const impulse = 2 * speedOnNormal / ((1/entityA.size) + (1/entityB.size));
-      // Change velocities based on impulse
-      entityA.speed.x -= impulse * nx / entityA.size;
-      entityA.speed.y -= impulse * ny / entityA.size;
-      entityB.speed.x += impulse * nx / entityB.size;
-      entityB.speed.y += impulse * ny / entityB.size;
-    }
+export function reflect(entityA, entityB, props){
+  // console.log('Collide Handler: Bounce Reflect');
+  // set collide on entities
+  entityA.isColliding = 5;
+  entityB.isColliding = 5;
+  // normal vector
+  const nx = props.normalVector.x;
+  const ny = props.normalVector.y;
+  // relative velocity
+  const vx = props.relativeVelocity.x; 
+  const vy = props.relativeVelocity.y; 
+  // relative velocity in terms of the normal direction
+  const speedOnNormal = vx * nx + vy * ny;
+  // perform collision response if moving towards each other
+  if (speedOnNormal < 0) {
+    // account for size 
+    const impulse = 2 * speedOnNormal / ((1/entityA.size) + (1/entityB.size));
+    // change velocities based on impulse
+    entityA.speed.x -= impulse * nx / entityA.size;
+    entityA.speed.y -= impulse * ny / entityA.size;
+    entityB.speed.x += impulse * nx / entityB.size;
+    entityB.speed.y += impulse * ny / entityB.size;
   }
+}
+
+export function reflectAngle(entityA, entityB, props) {
+  // console.log('Collide Handler: Angle Reflect');
+  // normal vector
+  const nx = props.normalVector.x;
+  const ny = props.normalVector.y;
+  // tangential vector (perpendicular to the normal)
+  const tx = -ny;
+  const ty = nx;
+  // relative velocity
+  const vx = props.relativeVelocity.x; 
+  const vy = props.relativeVelocity.y; 
+  // calculate relative velocity in terms of the tangential direction
+  const speedOnTangential = vx * tx + vy * ty;
+  // determine direction of rotation based on relative tangential speed (adjustable)
+  const angularImpulseScale = Math.abs(speedOnTangential) * 1;
+  if (speedOnTangential > 0) {
+      // entityA is moving "above" entityB in a tangential sense
+      entityA.rotationSpeed += angularImpulseScale / entityA.size;
+      entityB.rotationSpeed -= angularImpulseScale / entityB.size;
+  } else {
+      // entityB is moving "above" entityA in a tangential sense
+      entityA.rotationSpeed -= angularImpulseScale / entityA.size;
+      entityB.rotationSpeed += angularImpulseScale / entityB.size;
+  }
+}
 
 // Log Collide 
 export function logCollision(){
@@ -56,25 +92,25 @@ export function logCollision(){
 
 // Shrink Player
 export function shrinkPlayer(entity, player){
-    let scaleFactor = entity.size / (GLOBALS.game.maxSize - GLOBALS.game.minSize); 
-    player.size = Math.max(player.size - scaleFactor, GLOBALS.game.minSize);
+  let scaleFactor = entity.size / (GLOBALS.game.maxSize - GLOBALS.game.minSize); 
+  player.size = Math.max(player.size - scaleFactor, GLOBALS.game.minSize);
 }
 
 // Eat Bacteria 
 export function eatBacteria(bacteria, entity){
-    if (bacteria.active) {
-      entity.size = Math.min(GLOBALS.game.maxSize, entity.size + bacteria.bonus);
-      bacteria.active = false;
-    }  
-  }
+  if (bacteria.active) {
+    entity.size = Math.min(GLOBALS.game.maxSize, entity.size + bacteria.bonus);
+    bacteria.active = false;
+  }  
+}
 
-// Player Spike Attack 
-export function spikeAttack(entity, spike, player){
-  // args: entity (slime), the spike, and the player as a target...
+// Player Spike Attack (OFF)
+export function spikeAttack(entity, spike){
+  // args: entity (slime) & the spike
   if(!spike.atkThrottled){
     // console.log('HIT!!!!!'); 
     entity.size -= 1;
-    player.size += 1;
+    // player.size += 1; // change: instead of passing player as target arg, make player parent of spike obj
     spike.atkThrottled = true;
   } else {
     // console.log('...attack throttled'); 
@@ -104,3 +140,41 @@ export function slimeAvoid(aura, slime){
   slime.speed.x -= direction.x * speedFactor;
   slime.speed.y -= direction.y * speedFactor;
 }
+
+
+// Reflect/Bounce OLD
+// export function reflectOld(entityA, entityB, props){
+//   console.log('OLD Collide Handler: Bounce Reflect '+props.distance);
+//   // // set collide 
+//   entityA.isColliding = 5;
+//   entityB.isColliding = 5;
+//   // Run Collide Handler 
+//   const distX = entityA.position.x - entityB.position.x;
+//   const distY = entityA.position.y - entityB.position.y;
+//   const distance = Math.sqrt(distX * distX + distY * distY);
+//   // Calculate normal vector
+//   const nx = distX / distance;
+//   const ny = distY / distance;
+//   // Calculate relative velocity
+//   const vx = entityA.speed.x - entityB.speed.x; 
+//   const vy = entityA.speed.y - entityB.speed.y; 
+//   // Calculate relative velocity in terms of the normal direction
+//   const speedOnNormal = vx * nx + vy * ny;
+//   // Perform collision response if moving towards each other
+//   if (speedOnNormal < 0) {
+//     // account for size 
+//     const impulse = 2 * speedOnNormal / ((1/entityA.size) + (1/entityB.size));
+//     // Change velocities based on impulse
+//     entityA.speed.x -= impulse * nx / entityA.size;
+//     entityA.speed.y -= impulse * ny / entityA.size;
+//     entityB.speed.x += impulse * nx / entityB.size;
+//     entityB.speed.y += impulse * ny / entityB.size;
+//   }
+// }
+
+// export function reflectAngleOld(entityA, entityB, props) {
+//   console.log('OLD Collide Handler: Angle Reflect '+props.distance);
+//   // simple reverse rotation
+//   entityA.rotationSpeed = -(entityA.rotationSpeed);
+//   entityB.rotationSpeed = -(entityB.rotationSpeed);
+// }

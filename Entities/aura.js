@@ -9,6 +9,7 @@ export class Aura {
       this.parent = parent;
       this.scale = scale;
       this.position = parent.position;
+      this.speed = parent.speed;
       this.size = parent.size * scale;
       // this.alive = true;
     }

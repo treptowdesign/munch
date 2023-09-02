@@ -2,18 +2,18 @@ import pkg from 'raylib';
 const r = pkg;
 
 import {clr} from '../../Utilities/color.js';
-import {matrixRotate, rotatePoint, addVertices, degreesToRadians, radiansToDegrees} from '../../Utilities/helpers.js';
+import {matrixRotate, rotatePoint, degreesToRadians, radiansToDegrees} from '../../Utilities/helpers.js';
 
 export class Spike {
     constructor({ // defaults
-        position = {x: 0, y: 0}, 
+        position = r.Vector2(0, 0), 
         height = 10, 
         width = 10,
         angle = 0,
         offset = 0, 
         phase = 0, 
         bounceRate = 400,
-        bounceAmount = 0.8
+        bounceAmount = 0.8 
     } = {}) {
         this.position = position; // origin x/y
         this.height = height,
@@ -36,6 +36,8 @@ export class Spike {
         this.vertices[1] = r.Vector2(this.bounce, -(this.width/2));
         this.vertices[2] = r.Vector2(this.bounce, (this.width/2));
         // update points based on rotation
-        this.vertices.forEach((v, i) => { this.vertices[i] = rotatePoint(v, this.angle); });
+        this.vertices.forEach((v, i) => { 
+          this.vertices[i] = rotatePoint(v, this.angle); 
+        });
       }
 }

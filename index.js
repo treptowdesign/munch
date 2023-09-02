@@ -11,6 +11,7 @@ import {oob} from './Utilities/helpers.js';
 import {
   checkCollision, 
   reflect, 
+  reflectAngle,
   eatBacteria, 
   logCollision, 
   shrinkPlayer, 
@@ -20,7 +21,13 @@ import {
 } from './Utilities/collision.js';
 import {slimeArray, bacteriaArray, auraArray, genBacteria, genSlime} from './Utilities/generators.js';
 import {Player} from "./Entities/player.js";
-import {RadialFlagella, RadialGlobs, RadialSpikes, TripleTail, ColorTest} from "./Entities/graphics.js";
+
+import {RadialFlagella, Ciliate} from "./Entities/Graphics/radialflagella.js";
+import {RadialSpikes} from "./Entities/Graphics/radialspikes.js";
+import {RadialGlobs} from "./Entities/Graphics/radialglobs.js";
+import {TripleTail} from "./Entities/Graphics/tripletail.js";
+
+import {ColorTest} from "./Entities/Graphics/template.js";
 
 r.SetTargetFPS(60);
 r.InitWindow(GLOBALS.screen.width, GLOBALS.screen.height, 'Munch');  
@@ -47,15 +54,18 @@ while(bacteriaArray.length < GLOBALS.game.bacteriaNum){
 // }
 
 // graphics tests
+
 let graphicArray = [];
-let squid = new RadialFlagella({position: {x: 200 , y: 300}, number: 16, length: 100, size: 40, color: getColor('blue', 75)});
+let squid = new RadialFlagella({position: r.Vector2(200, 300), number: 16, length: 100, size: 40, color: getColor('blue', 75)});
 graphicArray.push(squid);
-let glob = new RadialGlobs({position: {x: 600 , y: 300}, number: 12, size: 40, color: clr('brown', 6)});
+let glob = new RadialGlobs({position: r.Vector2(600, 300), number: 12, size: 40, color: clr('brown', 6)});
 graphicArray.push(glob);
-let spike = new RadialSpikes({position: {x: 800 , y: 300}, number: 14, size: 40, color: clr('red', 5)});
+let spike = new RadialSpikes({position: r.Vector2(800, 300), number: 14, size: 40, color: clr('red', 5)});
 graphicArray.push(spike);
-let tails = new TripleTail({position: {x: 450 , y: 300}, length: 120, size: 30, color: clr('steel', 6)}); //position, length
+let tails = new TripleTail({position: r.Vector2(450, 300), length: 120, size: 30, color: clr('steel', 6)}); //position, length
 graphicArray.push(tails);
+// let ciliate = new Ciliate({position: r.Vector2(200, 550), number: 24, length: 100, size: 60, color: getColor('pink', 75)});
+// graphicArray.push(ciliate);
 
 // let testX = 200;
 // let clrKeys = ['red', 'green', 'blue', 'pink', 'brown', 'steel'];
@@ -134,14 +144,14 @@ while (!r.WindowShouldClose()) { // Detect window close button or ESC key
 
   // UPDATE SLIMES
   slimeArray.forEach((slime, index) => {
-    // check collision with player spike attack
-    if(player){ checkCollision(slime, player.spike, [reflect, spikeAttack], player); }
+    // check collision with player spike attack (OFF)
+    // if(player){ checkCollision(slime, player.spike, [reflect, spikeAttack], player); }
     // collision with player
     if(player){ checkCollision(slime, player, [reflect, shrinkPlayer]); }
     // collision with other slimes
     slimeArray.forEach((slime2, index2) => { 
       if(index != index2){ // dont check against themselves
-        checkCollision(slime, slime2, [reflect]);
+        checkCollision(slime, slime2, [reflect, reflectAngle]);
       }; 
     });
     // slime update/movement
@@ -182,7 +192,7 @@ while (!r.WindowShouldClose()) { // Detect window close button or ESC key
   } else if(gameState == 'lose'){
     // Lose Screen
     player = false; 
-    r.DrawText(loseText, (GLOBALS.screen.width/2) - (loseTextWidth/2), (GLOBALS.screen.height/2), gameStateFontSize, clr('steel', 6));
+    r.DrawText(loseText, (GLOBALS.screen.width/2) - (loseTextWidth/2), (GLOBALS.screen.height * 0.75), gameStateFontSize, clr('steel', 6));
   } else {
     // error 
     console.log('NO GAME STATE');
@@ -195,7 +205,6 @@ while (!r.WindowShouldClose()) { // Detect window close button or ESC key
     graphic.draw();
   });
   
-
 
   // debug 
   r.DrawText('FPS: ' + r.GetFPS(), 20, 20, 30, clr('steel', 6)); 

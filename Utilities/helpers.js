@@ -80,10 +80,10 @@ export function matrixRotate(origin, angle, drawCallback){
   r.rlPopMatrix();
 }
 
-// add two vertices together
-export function addVertices(v1, v2){
-  return { x: (v1.x + v2.x), y: (v1.y + v2.y) };
-}
+// // add two vertices together
+// export function addVertices(v1, v2){
+//   return { x: (v1.x + v2.x), y: (v1.y + v2.y) };
+// }
 
 // Convert degrees to radians
 export function degreesToRadians(degrees) {

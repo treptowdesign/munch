@@ -2,11 +2,11 @@ import pkg from 'raylib';
 const r = pkg;
 
 import {clr} from '../../Utilities/color.js';
-import {matrixRotate, rotatePoint, addVertices, degreesToRadians, radiansToDegrees} from '../../Utilities/helpers.js';
+import {matrixRotate, rotatePoint, degreesToRadians, radiansToDegrees} from '../../Utilities/helpers.js';
 
 export class Glob {
     constructor({ // defaults
-        position = {x: 0, y: 0}, 
+        position = r.Vector2(0, 0), 
         size = 10, 
         angle = 0, 
         color = clr('white', 7),
@@ -14,7 +14,7 @@ export class Glob {
         deformAmount = 20,
         offset = 0
     } = {}) {
-        this.position = position || {x: 0, y: 0};
+        this.position = position;
         this.size = size;
         this.radiusH = 0;
         this.radiusV = 0;

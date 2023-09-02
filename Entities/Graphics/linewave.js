@@ -2,11 +2,11 @@ import pkg from 'raylib';
 const r = pkg;
 
 import {clr} from '../../Utilities/color.js';
-import {matrixRotate, rotatePoint, addVertices, degreesToRadians, radiansToDegrees} from '../../Utilities/helpers.js';
+import {matrixRotate, rotatePoint, degreesToRadians, radiansToDegrees} from '../../Utilities/helpers.js';
 
 export class LineWave {
     constructor({ // defaults
-        position = {x: 0, y: 0}, 
+        position = r.Vector2(0, 0), 
         length, 
         amplitude, 
         frequency, 
@@ -32,7 +32,7 @@ export class LineWave {
         this.initialize();
     }
     initialize(){
-        this.pointCount = Math.ceil(this.length - this.offset);
+        this.pointCount = Math.ceil(this.length - this.offset); 
     }
     update() {
         // increase the phase to move the wave over time
