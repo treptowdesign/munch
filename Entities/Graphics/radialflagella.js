@@ -53,9 +53,7 @@ export class RadialFlagella {
     }
     update() {
         // update all arms
-        for (let arm of this.arms) {
-            arm.update();
-        }
+        for (let arm of this.arms) { arm.update(); }
         // update glob
         this.body.update();
         // rotate over time using rotation speed

@@ -16,6 +16,8 @@ export class RadialGlobs {
         this.color = color;
         this.arms = []; // holds all the arms
         this.body = false;
+        this.angle = 0; // in degrees
+        this.rotationSpeed = -10; // degrees / sec
         this.initialize();
     }
     initialize() {
@@ -46,21 +48,27 @@ export class RadialGlobs {
     }
     update() {
         // update all arms
-        for (let arm of this.arms) {
-            arm.update();
-        }
+        for (let arm of this.arms) { arm.update(); }
         // update glob
         this.body.update();
+        // rotate over time using rotation speed
+        this.angle = (this.angle + this.rotationSpeed * r.GetFrameTime()) % 360;
+        if (this.angle < 0) { this.angle += 360; }
     }
     draw() {
         // draw slime body
         this.body.draw();
-        // draw all arms
-        for (let arm of this.arms) {
-            // use matrix to translate & rotate
-            matrixRotate(this.position, arm.pivotAngle, function(){ // origin, angle, draw as callback
-                arm.draw();
-            });
-        }
+        // preserve scope 
+        let that = this;
+        matrixRotate(this.position, this.angle, function(){ // origin, angle, draw as callback
+            // draw all arms
+            for (let arm of that.arms) {
+                // use matrix to translate & rotate
+                matrixRotate(r.Vector2(0,0), arm.pivotAngle, function(){ // origin, angle, draw as callback
+                    arm.draw();
+                });
+            }
+        });
+        
     }
 }

@@ -19,6 +19,6 @@ export class Aura {
       // this.alive = this.parent.alive;
     }
     draw(){
-        r.DrawCircleV(this.position, this.size, clr('pink', 6, 20));
+        r.DrawCircleV(this.position, this.size, clr('pink', 6, 5));
     }
   }

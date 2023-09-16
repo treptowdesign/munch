@@ -22,13 +22,32 @@ export class TripleTail {
     initialize() {
         // big arm
         // variable phase
-            let phase = Math.random();
-            let frequency = 2
-            // create big arm
-            let arm = new LineWave({
+        let phase = Math.random();
+        let frequency = 2
+        // create big arm
+        let arm = new LineWave({
+            position: r.Vector2(0, 0),
+            length: this.length,
+            amplitude: 5,
+            frequency: frequency,
+            speed: 0.5,
+            phase: phase,
+            offset: this.size, // size of the slime in the center
+            thickness: 2, // line stroke
+            color: clr('steel', 7, 75),
+            nodes: {start: true, end: false, color: this.color, size: this.size/5}
+        });
+        // save angle of this arm for drawing - used only in this class so dont pass to LineWave 
+        this.arms.push(arm);
+
+        // create small arms
+        for (let i = 0; i < (this.number -1); i++) {
+            phase = Math.random(); // rando for 2nd arm
+            // frequency = Math.random();
+            arm = new LineWave({
                 position: r.Vector2(0, 0),
-                length: this.length,
-                amplitude: 5,
+                length: (this.length * 0.75),
+                amplitude: 12,
                 frequency: frequency,
                 speed: 0.5,
                 phase: phase,
@@ -37,26 +56,8 @@ export class TripleTail {
                 color: clr('steel', 7, 75),
                 nodes: {start: true, end: false, color: this.color, size: this.size/5}
             });
-            // save angle of this arm for drawing - used only in this class so dont pass to LineWave 
             this.arms.push(arm);
-            // create small arms
-            for (let i = 0; i < (this.number -1); i++) {
-                phase = Math.random(); // rando for 2nd arm
-                // frequency = Math.random();
-                arm = new LineWave({
-                    position: r.Vector2(0, 0),
-                    length: (this.length * 0.75),
-                    amplitude: 12,
-                    frequency: frequency,
-                    speed: 0.5,
-                    phase: phase,
-                    offset: this.size, // size of the slime in the center
-                    thickness: 2, // line stroke
-                    color: clr('steel', 7, 75),
-                    nodes: {start: true, end: false, color: this.color, size: this.size/5}
-                });
-                this.arms.push(arm);
-            }
+        }
     }
     update() {
         // update all arms
