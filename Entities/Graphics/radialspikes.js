@@ -73,8 +73,14 @@ export class RadialSpikes {
         // draw slime body
         this.body.draw();
         // data 
-        // let dataX = this.position.x - this.size;
-        // let dataY = this.position.y + this.size;
-        // r.DrawText('A: ' + this.angle, dataX, dataY, 12, clr('white', 7, 70));
+        this.debug(false);
+    }
+    debug(active){
+        if(active){
+            // Print out data to screen
+            let dataX = this.position.x - this.size;
+            let dataY = this.position.y + this.size;
+            r.DrawText('A: ' + this.angle, dataX, dataY, 12, clr('white', 7, 70));
+        }
     }
 }

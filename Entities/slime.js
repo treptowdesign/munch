@@ -104,7 +104,6 @@ export class Hunter extends Slime {
           r.DrawEllipse(0, 0, this.radiusH, this.radiusV, this.getColor());  // drawing at (0, 0) because we've translated the canvas
           r.DrawLine(0, 0, this.size, 0, clr('white', 7, 50));
         r.rlPopMatrix();
-        // r.DrawText('Angle: ' + this.angle, this.position.x, this.position.y, 12, r.DARKGRAY);
         // data 
         // let dataX = this.position.x - this.size;
         // let dataY = this.position.y + this.size;
