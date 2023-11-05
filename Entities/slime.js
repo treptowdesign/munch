@@ -2,7 +2,7 @@ import pkg from 'raylib';
 import {clr, colorGradient} from '../Utilities/color.js';
 import {GLOBALS} from '../globals.js'
 import {genAura} from '../Utilities/generators.js';
-import {matrixRotate, rotatePoint, degreesToRadians, radiansToDegrees} from '../Utilities/helpers.js';
+// import {matrixRotate, rotatePoint, degreesToRadians, radiansToDegrees} from '../Utilities/helpers.js';
 const r = pkg;
 
 const minSize = GLOBALS.game.minSize;
